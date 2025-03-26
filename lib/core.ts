@@ -1,5 +1,5 @@
 export interface RenumerateConfig {
-  public_key: string;
+  publicKey: string;
   debug?: boolean;
 }
 
@@ -183,27 +183,26 @@ export class Renumerate {
 
   /**
    * Register an event with a name and optional data
-   * @param event_name Name of the event to register
+   * @param eventName Name of the event to register
    * @param data Key-value pairs of event data
    */
-  registerEvent(event_name: string, data: EventData = {}): void {
-    if (this.config.debug)
-      console.log(`Registering event: ${event_name}`, data);
+  registerEvent(eventName: string, data: EventData = {}): void {
+    if (this.config.debug) console.log(`Registering event: ${eventName}`, data);
   }
 
   /**
    * Mount a cancel button for a subscriber
-   * @param subscriber_id Mandatory subscriber identifier
+   * @param customerId Mandatory subscriber identifier
    * @param options Optional parameters for the cancel button
    */
   mountCancelButton(
     elementId: string,
-    subscriber_id: string,
+    customerId: string,
     classes: string = "",
     options: {
-      subscription_id?: string;
-      subscriber_data?: Record<string, any>;
-      playbook_id?: string;
+      subscriptionId?: string;
+      subscriberData?: Record<string, any>;
+      playbookId?: string;
     } = {}
   ) {
     // Ensure styles are loaded
@@ -213,10 +212,10 @@ export class Renumerate {
 
     const button = document.createElement("button");
     button.textContent = "Cancel Subscription";
-    button.setAttribute("data-subscriber-id", subscriber_id);
+    button.setAttribute("data-customer-id", customerId);
 
     button.addEventListener("click", () => {
-      this.showRetentionView(subscriber_id, options);
+      this.showRetentionView(customerId, options);
     });
 
     if (classes) {
@@ -233,16 +232,16 @@ export class Renumerate {
   }
 
   /**
-   * Show retention view for a subscriber
-   * @param subscriber_id Mandatory subscriber identifier
+   * Show retention view for a customer
+   * @param customerId Mandatory customer identifier
    * @param options Optional parameters for the retention view
    */
   showRetentionView(
-    subscriber_id: string,
+    customerId: string,
     options: {
-      subscription_id?: string;
-      subscriber_data?: Record<string, any>;
-      playbook_id?: string;
+      subscriptionId?: string;
+      subscriberData?: Record<string, any>;
+      playbookId?: string;
     } = {}
   ): HTMLDialogElement {
     // Ensure styles are loaded
@@ -252,17 +251,17 @@ export class Renumerate {
 
     // Setup the iframe params
     const params = new URLSearchParams({
-      public_key: this.config.public_key,
-      subscriber_id: subscriber_id,
+      public_key: this.config.publicKey,
+      subscriber_id: customerId,
     });
-    if (options.subscription_id) {
-      params.append("subscription_id", options.subscription_id);
+    if (options.subscriptionId) {
+      params.append("subscription_id", options.subscriptionId);
     }
-    if (options.playbook_id) {
-      params.append("playbook_id", options.playbook_id);
+    if (options.playbookId) {
+      params.append("playbook_id", options.playbookId);
     }
-    if (options.subscriber_data) {
-      params.append("subscriber_data", JSON.stringify(options.subscriber_data));
+    if (options.subscriberData) {
+      params.append("subscriber_data", JSON.stringify(options.subscriberData));
     }
 
     const dialog = document.createElement("dialog");
