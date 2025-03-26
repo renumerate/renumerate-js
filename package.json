@@ -1,0 +1,40 @@
+{
+  "name": "renumerate-js",
+  "private": false,
+  "version": "0.5.0",
+  "type": "module",
+  "main": "dist/renumerate.umd.cjs",
+  "module": "dist/renumerate.js",
+  "exports": {
+    ".": {
+      "types": "./dist/core.d.ts",
+      "import": "./dist/renumerate.es.js",
+      "require": "./dist/renumerate.cjs.js"
+    },
+    "./react": {
+      "types": "./dist/react.d.ts",
+      "import": "./dist/react/index.es.js",
+      "require": "./dist/react/index.cjs.js"
+    }
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/react": "^17.0.0",
+    "prettier": "^3.3.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1",
+    "vite-plugin-dts": "^4.5.3"
+  },
+  "peerDependencies": {
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "files": [
+    "dist"
+  ]
+}
