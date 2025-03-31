@@ -193,18 +193,12 @@ export class Renumerate {
 
   /**
    * Mount a cancel button for a subscriber
-   * @param customerId Mandatory subscriber identifier
-   * @param options Optional parameters for the cancel button
+   * @param sessionId Mandatory customer session identifier
    */
   mountCancelButton(
     elementId: string,
-    customerId: string,
+    sessionId: string,
     classes: string = "",
-    options: {
-      subscriptionId?: string;
-      subscriberData?: Record<string, any>;
-      playbookId?: string;
-    } = {},
   ) {
     // Ensure styles are loaded
     if (!document.querySelector("style[data-renumerate-modal-styles]")) {
@@ -213,10 +207,8 @@ export class Renumerate {
 
     const button = document.createElement("button");
     button.textContent = "Cancel Subscription";
-    button.setAttribute("data-customer-id", customerId);
-
     button.addEventListener("click", () => {
-      this.showRetentionView(customerId, options);
+      this.showRetentionView(sessionId);
     });
 
     if (classes) {
@@ -234,35 +226,12 @@ export class Renumerate {
 
   /**
    * Show retention view for a customer
-   * @param customerId Mandatory customer identifier
-   * @param options Optional parameters for the retention view
+   * @param sessionId Mandatory customer session identifier
    */
-  showRetentionView(
-    customerId: string,
-    options: {
-      subscriptionId?: string;
-      subscriberData?: Record<string, any>;
-      playbookId?: string;
-    } = {},
-  ): HTMLDialogElement {
+  showRetentionView(sessionId: string): HTMLDialogElement {
     // Ensure styles are loaded
     if (!document.querySelector("style[data-renumerate-modal-styles]")) {
       this.injectStylesheet();
-    }
-
-    // Setup the iframe params
-    const params = new URLSearchParams({
-      public_key: this.config.publicKey,
-      subscriber_id: customerId,
-    });
-    if (options.subscriptionId) {
-      params.append("subscription_id", options.subscriptionId);
-    }
-    if (options.playbookId) {
-      params.append("playbook_id", options.playbookId);
-    }
-    if (options.subscriberData) {
-      params.append("subscriber_data", JSON.stringify(options.subscriberData));
     }
 
     const dialog = document.createElement("dialog");
@@ -283,7 +252,7 @@ export class Renumerate {
     const content = document.createElement("div");
     content.className = "renumerate-dialog-content";
     content.innerHTML = `
-      <iframe src="https://renumerate.com/cancellation?${params.toString()}" frameborder="0"></iframe>
+      <iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
     `;
     dialog.appendChild(content);
 

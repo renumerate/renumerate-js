@@ -30,6 +30,54 @@ const renumerate = new Renumerate({
 });
 ```
 
+#### Generating a customer's session id
+
+To generate a customer's session ID, make a POST request to `https://renumerate.com/api/v1/cancellation/session` from your application's backend.
+
+Ensure the following:
+
+1. Include the `X-Brand-Key` header with your Brand's private key for authentication.
+2. Pass the customer's ID and any other required parameters in the request body as specified by the API documentation.
+
+This process securely creates a session ID for the customer cancellation flow.
+
+| key                          | type                | notes                                   |
+| ---------------------------- | ------------------- | --------------------------------------- | ------------------------------------ |
+| cancellation                 | object              |                                         |
+| cancellation.customer_id     | string              | Your stripe customerId                  |
+| cancellation.subscription_id | string \| undefined | The specific subscription id (optional) |
+| cancellation.subscriberData  | { string: any }     | \ undefined                             | Object of subscriber data (optional) |
+
+Here's an example Node.js flow to obtain customer's session id:
+
+```typescript
+const privateKey = process.env.RENUMERATE_PRIVATE_KEY;
+
+const requestBody = {
+  cancellation: {
+    customer_id: "cus_NffrFeUfNV2Hib", // Example stripe id
+    subscription_id: "sub_1MowQVLkdIwHu7ixeRlqHVzs", // Your specific subscription
+    subscriberData: {
+      name: "John Doe",
+      email: "john.doe@example.com",
+    }, // Optional
+  },
+};
+
+const response = await fetch("https://renumerate.com/cancellation/session", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Brand-Secret": privateKey,
+  },
+  body: JSON.stringify(requestBody),
+});
+
+const {
+  session: { id },
+} = await response.json();
+```
+
 ##### Renumerate class arguments
 
 | key       | type    | notes                                          |
@@ -42,40 +90,30 @@ const renumerate = new Renumerate({
 The cancel button is the quickest way to get started with the Renumerate Retention Engine. The cancel button will render a button to the container and manage the entire retention workflow.
 
 ```typescript
-renumerate.mountCancelButton("elementId", "customerId", "classes", {
-  options,
-});
+renumerate.mountCancelButton("elementId", "sessionId", "classes");
 ```
 
 ##### mountCancelButton Arguments
 
-| key                    | type                | notes                                                          |
-| ---------------------- | ------------------- | -------------------------------------------------------------- |
-| elementId              | string              | The id for the container element                               |
-| customerId             | string              | Your stripe customerId                                         |
-| classes                | string \| undefined | Button classes (optional)                                      |
-| options                | object \| undefined |                                                                |
-| options.subscriptionId | string \| undefined | The specific subscription id (optional)                        |
-| options.subscriberData | { string: any }     | Object of subscriber data (optional)                           |
-| options.playbookId     | string \| undefined | Use a specific playbook instead of your default one (optional) |
+| key       | type                | notes                            |
+| --------- | ------------------- | -------------------------------- |
+| elementId | string              | The id for the container element |
+| sessionId | string              | Your customer's session id       |
+| classes   | string \| undefined | Button classes (optional)        |
 
 #### Show Retention View
 
 Show retention view gives you the control of where, when and how to invoke the Renumerate Cancellation Engine.
 
 ```typescript
-renumerate.showRetentionView("customerId");
+renumerate.showRetentionView("sessionId");
 ```
 
 ##### showRetentionView Arguments
 
-| key                    | type                | notes                                                          |
-| ---------------------- | ------------------- | -------------------------------------------------------------- |
-| customerId             | string              | Your stripe customerId                                         |
-| options                | object \| undefined |                                                                |
-| options.subscriptionId | string \| undefined | The specific Stripe subscription id (optional)                 |
-| options.subscriberData | { string: any }     | Object of subscriber data (optional)                           |
-| options.playbookId     | string \| undefined | Use a specific playbook instead of your default one (optional) |
+| key       | type   | notes                      |
+| --------- | ------ | -------------------------- |
+| sessionId | string | Your customer's session id |
 
 ### React
 
@@ -107,17 +145,14 @@ The easiest way to get started with the Renumerate Retention Engine.
 ```typescript
 import { CancelButton } from "@renumerate/js/react";
 
-<CancelButton customerId={} subscriptionId={} subscriberData= {} playbookId = {}/>
+<CancelButton sessionId={customersSessionId} />
 ```
 
 ##### CancelButton Arguments
 
-| key            | type                | notes                                                          |
-| -------------- | ------------------- | -------------------------------------------------------------- |
-| customerId     | string              | Your stripe customerId                                         |
-| subscriptionId | string \| undefined | The specific subscription id (optional)                        |
-| subscriberData | { string: any }     | Object of subscriber data (optional)                           |
-| playbookId     | string \| undefined | Use a specific playbook instead of your default one (optional) |
+| key       | type   | notes                      |
+| --------- | ------ | -------------------------- |
+| sessionId | string | Your customer's session id |
 
 #### useRenumerate hook
 
@@ -127,15 +162,12 @@ If you're Peter Pan maybe stay away, otherwise the hook gives you full control o
 import { useRenumerate } from "@renumerate/js/react";
 
 export function CancelWidget({
-  customerId,
-  subscriptionId,
+  sessionId,
 }: {
-  customerId: string;
-  subscriptionId: string | undefined;
+  sessionId: string;
 }) {
   const { open } = useRenumerate({
-    customerId: customerId,
-    subscriptionId: subscriptionId,
+    sessionId,
   });
 
   return (
@@ -148,12 +180,9 @@ export function CancelWidget({
 
 ##### useRenumerate Arguments
 
-| key            | type                | notes                                                          |
-| -------------- | ------------------- | -------------------------------------------------------------- |
-| customerId     | string              | Your stripe customerId                                         |
-| subscriptionId | string \| undefined | The specific subscription id (optional)                        |
-| subscriberData | { string: any }     | Object of subscriber data (optional)                           |
-| playbookId     | string \| undefined | Use a specific playbook instead of your default one (optional) |
+| key       | type   | notes                      |
+| --------- | ------ | -------------------------- |
+| sessionId | string | Your customer's session id |
 
 ### Typescript support
 

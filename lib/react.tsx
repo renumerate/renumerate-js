@@ -6,16 +6,11 @@ interface RenumerateContextValue {
 }
 
 interface UseRenumerateParams {
-  customerId: string;
-  subscriptionId?: string;
-  subscriberData?: Record<string, unknown>;
-  playbookId?: string;
+  sessionId: string;
 }
 
 interface RetentionViewParams {
-  subscriptionId?: string;
-  subscriberData?: Record<string, unknown>;
-  playbookId?: string;
+  sessionId: string;
 }
 
 interface UseRenumerateReturn {
@@ -50,10 +45,7 @@ export function RenumerateProvider({
  * Hook to use Renumerate instance in React components
  */
 export function useRenumerate({
-  customerId,
-  subscriptionId,
-  subscriberData = {},
-  playbookId,
+  sessionId,
 }: UseRenumerateParams): UseRenumerateReturn {
   const context = React.useContext(RenumerateContext);
   if (!context) {
@@ -61,22 +53,8 @@ export function useRenumerate({
   }
 
   const cachedOpen = React.useCallback(() => {
-    const params: RetentionViewParams = {
-      ...(subscriptionId && { subscriptionId }),
-      ...(Object.keys(subscriberData).length > 0 && {
-        subscriber_data: subscriberData,
-      }),
-      ...(playbookId && { playbookId }),
-    };
-
-    context.instance.showRetentionView(customerId, params);
-  }, [
-    context.instance,
-    customerId,
-    subscriptionId,
-    subscriberData,
-    playbookId,
-  ]);
+    context.instance.showRetentionView(sessionId);
+  }, [sessionId, context.instance]);
 
   return {
     open: cachedOpen,
@@ -86,12 +64,7 @@ export function useRenumerate({
 /**
  * Cancel Button Component
  */
-export function CancelButton({
-  customerId,
-  subscriptionId,
-  subscriberData = {},
-  playbookId,
-}: UseRenumerateParams) {
+export function CancelButton({ sessionId }: UseRenumerateParams) {
   const context = React.useContext(RenumerateContext);
 
   if (!context) {
@@ -99,15 +72,7 @@ export function CancelButton({
   }
 
   const handleClick = () => {
-    const params: RetentionViewParams = {
-      ...(subscriptionId && { subscriptionId }),
-      ...(Object.keys(subscriberData).length > 0 && {
-        subscriberData,
-      }),
-      ...(playbookId && { playbookId }),
-    };
-
-    context.instance.showRetentionView(customerId, params);
+    context.instance.showRetentionView(sessionId);
   };
 
   return (
