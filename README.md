@@ -1,4 +1,4 @@
-# renumerate-js
+# @renumerate/js
 
 Javascript browser library for [renumerate.com](https://renumerate.com)
 
@@ -13,7 +13,7 @@ React 17+
 With npm:
 
 ```bash
-npm install --save renumerate-js
+npm install --save @renumerate/js
 ```
 
 ## Documentation
@@ -23,7 +23,7 @@ npm install --save renumerate-js
 For the fearless, for the free, for those who like to live life outside of a framework.
 
 ```typescript
-import { Renumerate } from "renumerate-js";
+import { Renumerate } from "@renumerate/js";
 
 const renumerate = new Renumerate({
   publicKey: "test",
@@ -84,7 +84,7 @@ For those who `<React />` this one's for you. Here's how to get your retention v
 Everything in the react library requires the components to be wrapped in a RenumerateProvider.
 
 ```typescript
-import { RenumerateProvider } from "renumerate-js/react";
+import { RenumerateProvider } from "@renumerate/js/react";
 
 <RenumerateProvider
   config={{
@@ -105,7 +105,7 @@ import { RenumerateProvider } from "renumerate-js/react";
 The easiest way to get started with the Renumerate Retention Engine.
 
 ```typescript
-import { CancelButton } from "renumerate-js/react";
+import { CancelButton } from "@renumerate/js/react";
 
 <CancelButton customerId={} subscriptionId={} subscriberData= {} playbookId = {}/>
 ```
@@ -124,7 +124,7 @@ import { CancelButton } from "renumerate-js/react";
 If you're Peter Pan maybe stay away, otherwise the hook gives you full control over your renumerate retention workflow.
 
 ```typescript
-import { useRenumerate } from "renumerate-js/react";
+import { useRenumerate } from "@renumerate/js/react";
 
 export function CancelWidget({
   customerId,
@@ -157,4 +157,4 @@ export function CancelWidget({
 
 ### Typescript support
 
-If you like types we have types, all sorts of types. Those type definitions for renumerate-js and renumerate-js-react are built into the npm package. Type away :typingcat:
+If you like types we have types, all sorts of types. Those type definitions for @renumerate/js and @renumerate/js/react are built into the npm package. Type away :typingcat:
