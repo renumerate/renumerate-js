@@ -24,7 +24,7 @@ interface UseRenumerateReturn {
 
 // Create a context for Renumerate
 const RenumerateContext = React.createContext<RenumerateContextValue | null>(
-  null
+  null,
 );
 
 /**
@@ -70,7 +70,13 @@ export function useRenumerate({
     };
 
     context.instance.showRetentionView(customerId, params);
-  }, [customerId, subscriptionId, subscriberData, playbookId]);
+  }, [
+    context.instance,
+    customerId,
+    subscriptionId,
+    subscriberData,
+    playbookId,
+  ]);
 
   return {
     open: cachedOpen,

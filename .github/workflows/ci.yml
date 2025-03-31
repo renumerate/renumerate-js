@@ -1,0 +1,33 @@
+name: CI
+
+on: [pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up node
+        run: npm ci
+      - name: Cache format and lint output
+        uses: actions/cache@v4
+        with:
+          path: |
+            .prettiercache
+            .eslintcache
+          # Try to read from cache for a branch, if it exists.
+          # This way, stacked PRs can use the cache from their base branch.
+          # If it doesn't exist, fallback to the main branch.
+          key: lint-${{ github.head_ref || (github.ref == 'refs/head/main' && 'main' || github.ref) }}
+          # If the cache is not found, restore from the parent branch.
+          # If the parent branch is not found, restore from the main branch.
+          restore-keys: |
+            lint-${{ github.base_ref }}
+            lint-main
+      - name: Lint client code for consistent style
+        # In a github action, all files are fresh copies, so we favor content-based caching
+        # over metadata-based caching.
+        run: npm run lint:ci
+        # Stopgap to prevent OOM errors... eslint gets expensive quick.
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
