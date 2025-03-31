@@ -62,12 +62,7 @@ export default tseslint.config(
     rules: {
       // React rules
       "react-hooks/rules-of-hooks": "error",
-      "react-hooks/exhaustive-deps": [
-        "error",
-        {
-          additionalHooks: "(useDidMountEffect)",
-        },
-      ],
+      "react-hooks/exhaustive-deps": "error",
 
       "react/function-component-definition": [
         "error",
