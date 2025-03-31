@@ -187,7 +187,8 @@ export class Renumerate {
    * @param data Key-value pairs of event data
    */
   registerEvent(eventName: string, data: EventData = {}): void {
-    if (this.config.debug) console.log(`Registering event: ${eventName}`, data);
+    if (this.config.debug)
+      console.info(`Registering event: ${eventName}`, data);
   }
 
   /**
@@ -203,7 +204,7 @@ export class Renumerate {
       subscriptionId?: string;
       subscriberData?: Record<string, any>;
       playbookId?: string;
-    } = {}
+    } = {},
   ) {
     // Ensure styles are loaded
     if (!document.querySelector("style[data-renumerate-modal-styles]")) {
@@ -242,7 +243,7 @@ export class Renumerate {
       subscriptionId?: string;
       subscriberData?: Record<string, any>;
       playbookId?: string;
-    } = {}
+    } = {},
   ): HTMLDialogElement {
     // Ensure styles are loaded
     if (!document.querySelector("style[data-renumerate-modal-styles]")) {
