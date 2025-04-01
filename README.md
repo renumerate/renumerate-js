@@ -68,7 +68,7 @@ const response = await fetch("https://renumerate.com/cancellation/session", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
-    "X-Brand-Secret": privateKey,
+    "X-Brand-Key": privateKey,
   },
   body: JSON.stringify(requestBody),
 });
