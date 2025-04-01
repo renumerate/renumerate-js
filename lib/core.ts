@@ -19,6 +19,11 @@ export class Renumerate {
    * Private: Inject the stylesheet for the widget
    */
   private injectStylesheet() {
+    if (typeof document === "undefined") {
+      // Exit early if `document` is not available (e.g., during SSR)
+      return;
+    }
+
     const styleSheet = document.createElement("style");
     styleSheet.type = "text/css";
     styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
