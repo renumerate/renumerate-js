@@ -9,10 +9,6 @@ interface UseRenumerateParams {
   sessionId: string;
 }
 
-interface RetentionViewParams {
-  sessionId: string;
-}
-
 interface UseRenumerateReturn {
   open: () => void;
 }
