@@ -18,21 +18,15 @@ npm install --save @renumerate/js
 
 ## Documentation
 
-### Javascript/Typescript
+### Generating SessionId's
 
-For the fearless, for the free, for those who like to live life outside of a framework.
+#### Generating a retention session id
 
-```typescript
-import { Renumerate } from "@renumerate/js";
+Retention sessions allow you to present a retention workflow when a customer goes to cancel their subscription. This sessionId can be passed into the showRetentionView or cancelButton functions.
 
-const renumerate = new Renumerate({
-  publicKey: "test",
-});
-```
+*Retention sessions begin with `ret_`*
 
-#### Generating a customer's session id
-
-To generate a customer's session ID, make a POST request to `https://renumerate.com/api/v1/cancellation/session` from your application's backend.
+To generate a customer's session ID, make a POST request to `https://renumerate.com/api/v1/retention/session` from your application's backend.
 
 Ensure the following:
 
@@ -64,7 +58,7 @@ const requestBody = {
   },
 };
 
-const response = await fetch("https://renumerate.com/cancellation/session", {
+const response = await fetch("https://renumerate.com/retention/session", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -78,12 +72,72 @@ const {
 } = await response.json();
 ```
 
+#### Generating a SubscriptionHub session id
+
+Subscription sessions allow you to present the SubscriptionHub widget to your customers to easily manage and view their subscriptions.
+
+*Subscription sessions begin with `sub_`*
+
+To generate a customer's session ID, make a POST request to `https://renumerate.com/api/v1/subscription/session` from your application's backend.
+
+Ensure the following:
+
+1. Include the `X-Brand-Key` header with your Brand's private key for authentication.
+2. Pass the customer's ID and any other required parameters in the request body as specified by the API documentation.
+
+This process securely creates a session ID for the customer cancellation flow.
+
+| key                          | type                | notes                                   |                                      |
+| ---------------------------- | ------------------- | --------------------------------------- | ------------------------------------ |
+| subscription                 | object              |                                         |                                      |
+| subscription.customer_id     | string              | Your stripe customerId                  |                                      |
+| subscription.subscription_id | string \| undefined | The specific subscription id (optional) |                                      |
+
+Here's an example Node.js flow to obtain customer's session id:
+
+```typescript
+const privateKey = process.env.RENUMERATE_PRIVATE_KEY;
+
+const requestBody = {
+  cancellation: {
+    customer_id: "cus_NffrFeUfNV2Hib", // Example stripe id
+    subscription_id: "sub_1MowQVLkdIwHu7ixeRlqHVzs", // Your specific subscription
+  },
+};
+
+const response = await fetch("https://renumerate.com/subscription/session", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "X-Brand-Key": privateKey,
+  },
+  body: JSON.stringify(requestBody),
+});
+
+const {
+  session: { id },
+} = await response.json();
+```
+
+### Javascript/Typescript
+
+For the fearless, for the free, for those who like to live life outside of a framework.
+
+```typescript
+import { Renumerate } from "@renumerate/js";
+
+const renumerate = new Renumerate({
+  publicKey: "test",
+});
+```
+
 ##### Renumerate class arguments
 
 | key       | type    | notes                                          |
 | --------- | ------- | ---------------------------------------------- |
 | publicKey | string  | Get this from your brand settings page         |
 | debug     | boolean | Default: false, whether you want debug logging |
+
 
 #### Cancel Button
 
@@ -114,6 +168,22 @@ renumerate.showRetentionView("sessionId");
 | key       | type   | notes                      |
 | --------- | ------ | -------------------------- |
 | sessionId | string | Your customer's session id |
+
+#### SubscriptionHub
+
+The SubscriptionHub is the quickest way to get started with SubscriptionManagement. The SubscriptionHub will render a subscription management widget to the container and manage the entire subscription management and retention workflow.
+
+```typescript
+renumerate.mountSubscriptionHub("elementId", "sessionId", "classes");
+```
+
+##### mountSubscriptionHub Arguments
+
+| key       | type                | notes                                    |
+| --------- | ------------------- | ---------------------------------------- |
+| elementId | string              | The id for the container element         |
+| sessionId | string              | Your customer's subscription session id  |
+| classes   | string \| undefined | Button classes (optional)                |
 
 ### React
 
@@ -150,9 +220,27 @@ import { CancelButton } from "@renumerate/js/react";
 
 ##### CancelButton Arguments
 
-| key       | type   | notes                      |
-| --------- | ------ | -------------------------- |
-| sessionId | string | Your customer's session id |
+| key       | type                | notes                      |
+| --------- | ------------------- | -------------------------- |
+| sessionId | string              | Your customer's session id |
+| className | string \| undefined | Optional className         |
+
+#### SubscriptionHub
+
+The easiest way to setup a subscription management widget.
+
+```typescript
+import { SubscriptionHub } from "@renumerate/js/react";
+
+<SubscriptionHub sessionId={customersSessionId} />
+```
+
+##### SubscriptionHub Arguments
+
+| key       | type                | notes                      |
+| --------- | ------------------- | -------------------------- |
+| sessionId | string              | Your customer's session id |
+| className | string \| undefined | Optional className         |
 
 #### useRenumerate hook
 

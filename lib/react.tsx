@@ -2,78 +2,102 @@ import React from "react";
 import { Renumerate, RenumerateConfig } from "./core";
 
 interface RenumerateContextValue {
-  instance: Renumerate;
+	instance: Renumerate;
 }
 
 interface UseRenumerateParams {
-  sessionId: string;
+	sessionId: string;
+	className?: string;
 }
 
 interface UseRenumerateReturn {
-  open: () => void;
+	open: () => void;
 }
 
 // Create a context for Renumerate
 const RenumerateContext = React.createContext<RenumerateContextValue | null>(
-  null,
+	null,
 );
 
 /**
  * Renumerate Provider Component
  */
 export function RenumerateProvider({
-  config,
-  children,
+	config,
+	children,
 }: {
-  config: RenumerateConfig;
-  children: React.ReactNode;
+	config: RenumerateConfig;
+	children: React.ReactNode;
 }) {
-  const renumerate = new Renumerate(config);
+	const renumerate = new Renumerate(config);
 
-  return (
-    <RenumerateContext.Provider value={{ instance: renumerate }}>
-      {children}
-    </RenumerateContext.Provider>
-  );
+	return (
+		<RenumerateContext.Provider value={{ instance: renumerate }}>
+			{children}
+		</RenumerateContext.Provider>
+	);
 }
 
 /**
  * Hook to use Renumerate instance in React components
  */
 export function useRenumerate({
-  sessionId,
+	sessionId,
 }: UseRenumerateParams): UseRenumerateReturn {
-  const context = React.useContext(RenumerateContext);
-  if (!context) {
-    throw new Error("useRenumerate must be used within a RenumerateProvider");
-  }
+	const context = React.useContext(RenumerateContext);
+	if (!context) {
+		throw new Error("useRenumerate must be used within a RenumerateProvider");
+	}
 
-  const cachedOpen = React.useCallback(() => {
-    context.instance.showRetentionView(sessionId);
-  }, [sessionId, context.instance]);
+	const cachedOpen = React.useCallback(() => {
+		context.instance.showRetentionView(sessionId);
+	}, [sessionId, context.instance]);
 
-  return {
-    open: cachedOpen,
-  };
+	return {
+		open: cachedOpen,
+	};
 }
 
 /**
  * Cancel Button Component
  */
-export function CancelButton({ sessionId }: UseRenumerateParams) {
-  const context = React.useContext(RenumerateContext);
+export function CancelButton({ sessionId, className }: UseRenumerateParams) {
+	const context = React.useContext(RenumerateContext);
 
-  if (!context) {
-    throw new Error("useRenumerate must be used within a RenumerateProvider");
-  }
+	if (!context) {
+		throw new Error("useRenumerate must be used within a RenumerateProvider");
+	}
 
-  const handleClick = () => {
-    context.instance.showRetentionView(sessionId);
-  };
+	const handleClick = () => {
+		context.instance.showRetentionView(sessionId);
+	};
 
-  return (
-    <button className="renumerate-cancel-btn" onClick={handleClick}>
-      Cancel Subscription
-    </button>
-  );
+	return (
+		<button
+			type="button"
+			className={className || "renumerate-cancel-btn"}
+			onClick={handleClick}
+		>
+			Cancel Subscription
+		</button>
+	);
+}
+/**
+ * SubscriptionHub Component
+ */
+export function SubscriptionHub({ sessionId, className }: UseRenumerateParams) {
+	const context = React.useContext(RenumerateContext);
+
+	if (!context) {
+		throw new Error("useRenumerate must be used within a RenumerateProvider");
+	}
+
+	return (
+		<div className={className || "renumerate-subscription-hub"}>
+			<iframe
+				title="SubscriptionHub"
+				src={`https://renumerate.com/subscription/${sessionId}`}
+			/>
+		</div>
+	);
 }
