@@ -1,33 +1,196 @@
 export interface RenumerateConfig {
-  publicKey: string;
-  debug?: boolean;
+	publicKey: string;
+	debug?: boolean;
 }
 
 export interface EventData {
-  [key: string]: string | number | boolean;
+	[key: string]: string | number | boolean;
 }
 
 export class Renumerate {
-  private config: RenumerateConfig;
+	private config: RenumerateConfig;
 
-  constructor(config: RenumerateConfig) {
-    this.config = config;
-    this.injectStylesheet();
-  }
+	constructor(config: RenumerateConfig) {
+		this.config = config;
+		this.injectStylesheet();
+		this.addListener();
+	}
 
-  /**
-   * Private: Inject the stylesheet for the widget
-   */
-  private injectStylesheet() {
-    if (typeof document === "undefined") {
-      // Exit early if `document` is not available (e.g., during SSR)
-      return;
-    }
+	/**
+	 * Register an event with a name and optional data
+	 * @param eventName Name of the event to register
+	 * @param data Key-value pairs of event data
+	 */
+	registerEvent(eventName: string, data: EventData = {}): void {
+		if (this.config.debug)
+			console.info(`Registering event: ${eventName}`, data);
+	}
 
-    const styleSheet = document.createElement("style");
-    styleSheet.type = "text/css";
-    styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
-    styleSheet.innerHTML = `
+	/**
+	 * Mount a cancel button for a subscriber
+	 * @param sessionId Mandatory customer session identifier
+	 */
+	mountCancelButton(
+		elementId: string,
+		sessionId: string,
+		classes: string = "",
+	) {
+		// Ensure styles are loaded
+		if (!document.querySelector("style[data-renumerate-modal-styles]")) {
+			this.injectStylesheet();
+		}
+		// Validate sessionId
+		if (!this.isSessionType(sessionId, "retention")) {
+			throw new Error(
+				`Invalid sessionId: ${sessionId}. Expected a retention session ID.`,
+			);
+		}
+
+		const button = document.createElement("button");
+		button.textContent = "Cancel Subscription";
+		button.addEventListener("click", () => {
+			this.showRetentionView(sessionId);
+		});
+
+		if (classes) {
+			button.className = classes;
+		} else {
+			button.className = "renumerate-cancel-btn";
+		}
+
+		const parent = document.getElementById(elementId);
+		if (!parent) {
+			throw new Error(`Element with id ${elementId} not found`);
+		}
+		parent.appendChild(button);
+	}
+
+	/**
+	 * Show retention view for a customer
+	 * @param sessionId Mandatory customer session identifier
+	 */
+	showRetentionView(sessionId: string): HTMLDialogElement {
+		// Ensure styles are loaded
+		if (!document.querySelector("style[data-renumerate-modal-styles]")) {
+			this.injectStylesheet();
+		}
+
+		// Validate sessionId
+		if (
+			!this.isSessionType(sessionId, "retention") &&
+			!this.isSessionType(sessionId, "subscription")
+		) {
+			throw new Error(
+				`Invalid sessionId: ${sessionId}. Expected a retention or subscription session ID.`,
+			);
+		}
+
+		const dialog = document.createElement("dialog");
+		dialog.className = "renumerate-dialog";
+
+		// Create close button
+		const closeButton = document.createElement("button");
+		closeButton.className = "renumerate-dialog-close";
+		closeButton.innerHTML = "&times;";
+		closeButton.setAttribute("aria-label", "Close");
+		dialog.appendChild(closeButton);
+
+		closeButton.addEventListener("click", () => {
+			dialog.close();
+		});
+
+		// Create the content
+		const content = document.createElement("div");
+		content.className = "renumerate-dialog-content";
+		content.innerHTML = `
+      <iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
+    `;
+		dialog.appendChild(content);
+
+		document.body.appendChild(dialog);
+		dialog.showModal();
+
+		// Teardown
+		dialog.addEventListener("close", () => {
+			dialog.remove();
+		});
+
+		return dialog;
+	}
+
+	/**
+	 * Mount the SubscriptionHub for a customer
+	 * @param sessionId
+	 * @returns
+	 */
+	mountSubscriptionHub(
+		elementId: string,
+		sessionId: string,
+		classes: string = "",
+	): HTMLElement {
+		// Ensure styles are loaded
+		if (!document.querySelector("style[data-renumerate-modal-styles]")) {
+			this.injectStylesheet();
+		}
+
+		// Validate sessionId
+		if (!this.isSessionType(sessionId, "subscription")) {
+			throw new Error(
+				`Invalid sessionId: ${sessionId}. Expected a subscription session ID.`,
+			);
+		}
+
+		const container = document.createElement("div");
+		container.className = classes || "renumerate-subscription-hub";
+
+		const parent = document.getElementById(elementId);
+		if (!parent) {
+			throw new Error(`Element with id ${elementId} not found`);
+		}
+		parent.appendChild(container);
+
+		const iframe = document.createElement("iframe");
+		iframe.src = `https://renumerate.com/subscription/${sessionId}`;
+		iframe.width = "100%";
+		iframe.height = "300px";
+
+		container.appendChild(iframe);
+
+		return container;
+	}
+
+	/* Private functions */
+
+	/**
+	 * Private: Check if the sessionId is of a specific type
+	 * @param sessionId The session ID to check
+	 * @param type The type to check against ("retention" or "subscription")
+	 * @returns True if the sessionId matches the type, false otherwise
+	 */
+	private isSessionType(sessionId: string, type: "retention" | "subscription") {
+		switch (type) {
+			case "retention":
+				return sessionId.startsWith("ret_");
+			case "subscription":
+				return sessionId.startsWith("sub_");
+			default:
+				throw new Error(`Unknown session type: ${type}`);
+		}
+	}
+
+	/**
+	 * Private: Inject the stylesheet into the document head
+	 */
+	private injectStylesheet() {
+		if (typeof document === "undefined") {
+			// Exit early if `document` is not available (e.g., during SSR)
+			return;
+		}
+
+		const styleSheet = document.createElement("style");
+		styleSheet.type = "text/css";
+		styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
+		styleSheet.innerHTML = `
       .renumerate-dialog {
           min-width: 800px;
           min-height: 600px;
@@ -183,92 +346,28 @@ export class Renumerate {
           border-color: #d4d4d8;
       }
     `;
-    document.head.appendChild(styleSheet);
-  }
+		document.head.appendChild(styleSheet);
+	}
 
-  /**
-   * Register an event with a name and optional data
-   * @param eventName Name of the event to register
-   * @param data Key-value pairs of event data
-   */
-  registerEvent(eventName: string, data: EventData = {}): void {
-    if (this.config.debug)
-      console.info(`Registering event: ${eventName}`, data);
-  }
+	/**
+	 * Private: Add a listener for messages from the iframe
+	 */
+	private addListener() {
+		window.addEventListener("message", (event) => {
+			const allowedOrigins = ["https://renumerate.com"];
 
-  /**
-   * Mount a cancel button for a subscriber
-   * @param sessionId Mandatory customer session identifier
-   */
-  mountCancelButton(
-    elementId: string,
-    sessionId: string,
-    classes: string = "",
-  ) {
-    // Ensure styles are loaded
-    if (!document.querySelector("style[data-renumerate-modal-styles]")) {
-      this.injectStylesheet();
-    }
+			if (!allowedOrigins.includes(event.origin)) {
+				console.warn(
+					"Received message from unauthorized origin:",
+					event.origin,
+				);
+				return;
+			}
 
-    const button = document.createElement("button");
-    button.textContent = "Cancel Subscription";
-    button.addEventListener("click", () => {
-      this.showRetentionView(sessionId);
-    });
-
-    if (classes) {
-      button.className = classes;
-    } else {
-      button.className = "renumerate-cancel-btn";
-    }
-
-    const parent = document.getElementById(elementId);
-    if (!parent) {
-      throw new Error(`Element with id ${elementId} not found`);
-    }
-    parent.appendChild(button);
-  }
-
-  /**
-   * Show retention view for a customer
-   * @param sessionId Mandatory customer session identifier
-   */
-  showRetentionView(sessionId: string): HTMLDialogElement {
-    // Ensure styles are loaded
-    if (!document.querySelector("style[data-renumerate-modal-styles]")) {
-      this.injectStylesheet();
-    }
-
-    const dialog = document.createElement("dialog");
-    dialog.className = "renumerate-dialog";
-
-    // Create close button
-    const closeButton = document.createElement("button");
-    closeButton.className = "renumerate-dialog-close";
-    closeButton.innerHTML = "&times;";
-    closeButton.setAttribute("aria-label", "Close");
-    dialog.appendChild(closeButton);
-
-    closeButton.addEventListener("click", () => {
-      dialog.close();
-    });
-
-    // Create the content
-    const content = document.createElement("div");
-    content.className = "renumerate-dialog-content";
-    content.innerHTML = `
-      <iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
-    `;
-    dialog.appendChild(content);
-
-    document.body.appendChild(dialog);
-    dialog.showModal();
-
-    // Teardown
-    dialog.addEventListener("close", () => {
-      dialog.remove();
-    });
-
-    return dialog;
-  }
+			const { type, data } = event.data;
+			if (type === "cancel-subscription") {
+				this.showRetentionView(data.sessionId);
+			}
+		});
+	}
 }

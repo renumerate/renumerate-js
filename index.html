@@ -8,23 +8,59 @@
   <body>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script type="module" src="/lib/main.ts"></script>
+    
     <div
-      class="container p-16 mx-auto bg-gray-100 rounded-lg flex flex-col gap-16"
+      class="container p-4 mx-auto bg-gray-100 rounded-lg flex flex-col gap-8"
     >
+      <h1 class="text-3xl font-bold">Retention</h1>
+
+      <div class="w-full">
+        <input type="text" id="retention_session_id" placeholder="RetentionSessionID" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      </div>
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        id="mount_subscription_hub"
+        onclick="renumerate.mountCancelButton('cancel_button', document.getElementById('retention_session_id').value)"
+        >Load
+      </button>
+
       <div class="flex flex-col justify-center gap-4">
-        <h1 class="text-lg font-bold">showRetentionView</h1>
+        <h2 class="text-lg font-bold">showRetentionView</h2>
         <button
           class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           id="cancel"
-          onclick="renumerate.showRetentionView('test')"
+          onclick="renumerate.showRetentionView(document.getElementById('retention_session_id').value)"
         >
           Cancel
         </button>
       </div>
 
       <div class="flex flex-col justify-center gap-4">
-        <h1 class="text-lg font-bold">mountCancelButton</h1>
+        <h2 class="text-lg font-bold">mountCancelButton</h2>
         <div id="cancel_button"></div>
+      </div>
+
+    </div>
+    <div
+      class="container p-4 mx-auto bg-gray-100 rounded-lg flex flex-col gap-8 mt-8"
+    >
+      <h1 class="text-3xl font-bold">Subscriptions</h1>
+      
+      <div class="w-full">
+        <input type="text" id="subscription_session_id" placeholder="SubscriptionSessionID" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      </div>
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        id="mount_subscription_hub"
+        onclick="renumerate.mountSubscriptionHub('subscription_hub', document.getElementById('subscription_session_id').value)"
+        >Load
+      </button>
+
+      <div class="flex flex-col justify-center gap-4">
+        <h1 class="text-lg font-bold">mountSubscriptionHub</h1>
+        <div class="p-4 bg-gray-200 rounded-lg">
+          <div id="subscription_hub"></div>
+        </div>
       </div>
     </div>
 
@@ -37,7 +73,6 @@
       });
 
       window.renumerate = renumerate;
-      renumerate.mountCancelButton("cancel_button", "test");
     </script>
   </body>
 </html>
