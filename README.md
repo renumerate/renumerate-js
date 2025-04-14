@@ -35,12 +35,12 @@ Ensure the following:
 
 This process securely creates a session ID for the customer cancellation flow.
 
-| key                          | type                | notes                                   |                                      |
-| ---------------------------- | ------------------- | --------------------------------------- | ------------------------------------ |
-| cancellation                 | object              |                                         |                                      |
-| cancellation.customer_id     | string              | Your stripe customerId                  |                                      |
-| cancellation.subscription_id | string \| undefined | The specific subscription id (optional) |                                      |
-| cancellation.subscriberData  | { string: any }     | \ undefined                             | Object of subscriber data (optional) |
+| key                          | type                        | notes                                   |
+| ---------------------------- | --------------------------- | --------------------------------------- |
+| cancellation                 | object                      |                                         |
+| cancellation.customer_id     | string                      | Your stripe customerId                  |
+| cancellation.subscription_id | string \| undefined         | The specific subscription id (optional) |
+| cancellation.subscriberData  | { string: any } \ undefined | Object of subscriber data (optional)    |
 
 Here's an example Node.js flow to obtain customer's session id:
 
