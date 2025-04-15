@@ -1,0 +1,8 @@
+# Run lint and build
+npm run lint && npm run build
+
+# Check for unstaged changes
+if [ -n "$(git diff --name-only)" ]; then
+  echo "Error: You have unstaged changes after running lint or build. Please stage them before committing."
+  exit 1
+fi

@@ -4,7 +4,7 @@
 set -e
 
 # Lint
-npm run lint:local
+npm run lint
 # Build
 npm run build
 # Check that env variable NPM_TOKEN is set
