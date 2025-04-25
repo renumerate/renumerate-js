@@ -49,9 +49,7 @@ class m {
     });
     const n = document.createElement("div");
     return n.className = "renumerate-dialog-content", n.innerHTML = `
-			<iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>
-			<iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>
-			
+			<iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>			
 				`, t.appendChild(n), n.prepend(r), document.body.appendChild(t), t.showModal(), t.addEventListener("close", () => {
       t.remove();
     }), t;

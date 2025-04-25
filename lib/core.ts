@@ -104,9 +104,7 @@ export class Renumerate {
 		content.className = "renumerate-dialog-content";
 
 		content.innerHTML = `
-			<iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
-			<iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
-			
+			<iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>			
 				`;
 		dialog.appendChild(content);
 
