@@ -1,9 +1,9 @@
 "use strict";var d=Object.defineProperty;var c=(o,e,t)=>e in o?d(o,e,{enumerable:!0,configurable:!0,writable:!0,value:t}):o[e]=t;var s=(o,e,t)=>c(o,typeof e!="symbol"?e+"":e,t);Object.defineProperty(exports,Symbol.toStringTag,{value:"Module"});class l{constructor(e){s(this,"config");this.config=e,this.injectStylesheet(),this.addListener()}registerEvent(e,t={}){this.config.debug&&console.info(`Registering event: ${e}`,t)}mountCancelButton(e,t,r=""){if(document.querySelector("style[data-renumerate-modal-styles]")||this.injectStylesheet(),!this.isSessionType(t,"retention"))throw new Error(`Invalid sessionId: ${t}. Expected a retention session ID.`);const n=document.createElement("button");n.textContent="Cancel Subscription",n.addEventListener("click",()=>{this.showRetentionView(t)}),r?n.className=r:n.className="renumerate-cancel-btn";const i=document.getElementById(e);if(!i)throw new Error(`Element with id ${e} not found`);i.appendChild(n)}showRetentionView(e){if(document.querySelector("style[data-renumerate-modal-styles]")||this.injectStylesheet(),!this.isSessionType(e,"retention")&&!this.isSessionType(e,"subscription"))throw new Error(`Invalid sessionId: ${e}. Expected a retention or subscription session ID.`);const t=document.createElement("dialog");t.className="renumerate-dialog";const r=document.createElement("button");r.className="renumerate-dialog-close",r.innerHTML="&times;",r.setAttribute("aria-label","Close"),t.appendChild(r),r.addEventListener("click",()=>{t.close()});const n=document.createElement("div");return n.className="renumerate-dialog-content",n.innerHTML=`
-      <iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>
-    `,t.appendChild(n),document.body.appendChild(t),t.showModal(),t.addEventListener("close",()=>{t.remove()}),t}mountSubscriptionHub(e,t,r=""){if(document.querySelector("style[data-renumerate-modal-styles]")||this.injectStylesheet(),!this.isSessionType(t,"subscription"))throw new Error(`Invalid sessionId: ${t}. Expected a subscription session ID.`);const n=document.createElement("div");n.className=r||"renumerate-subscription-hub";const i=document.getElementById(e);if(!i)throw new Error(`Element with id ${e} not found`);i.appendChild(n);const a=document.createElement("iframe");return a.src=`https://renumerate.com/subscription/${t}`,a.width="100%",a.height="300px",n.appendChild(a),n}isSessionType(e,t){switch(t){case"retention":return e.startsWith("ret_");case"subscription":return e.startsWith("sub_");default:throw new Error(`Unknown session type: ${t}`)}}injectStylesheet(){if(typeof document>"u")return;const e=document.createElement("style");e.type="text/css",e.setAttribute("data-renumerate-dialog-styles","true"),e.innerHTML=`
+			<iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>
+				`,t.appendChild(n),n.prepend(r),document.body.appendChild(t),t.showModal(),t.addEventListener("close",()=>{t.remove()}),t}mountSubscriptionHub(e,t,r=""){if(document.querySelector("style[data-renumerate-modal-styles]")||this.injectStylesheet(),!this.isSessionType(t,"subscription"))throw new Error(`Invalid sessionId: ${t}. Expected a subscription session ID.`);const n=document.createElement("div");n.className=r||"renumerate-subscription-hub";const i=document.getElementById(e);if(!i)throw new Error(`Element with id ${e} not found`);i.appendChild(n);const a=document.createElement("iframe");return a.src=`https://renumerate.com/subscription/${t}`,a.width="100%",a.height="300px",n.appendChild(a),n}isSessionType(e,t){switch(t){case"retention":return e.startsWith("ret_");case"subscription":return e.startsWith("sub_");default:throw new Error(`Unknown session type: ${t}`)}}injectStylesheet(){if(typeof document>"u")return;const e=document.createElement("style");e.type="text/css",e.setAttribute("data-renumerate-dialog-styles","true"),e.innerHTML=`
       .renumerate-dialog {
-          min-width: 800px;
-          min-height: 600px;
+          min-width: 100vw;
+          min-height: 100vh;
           width: 800px;
           max-width: 90%;
           max-height: 90%;
@@ -17,7 +17,9 @@
           transform: translate(-50%, -50%);
           display: flex; /* Use flexbox for full height */
           flex-direction: column;
-          
+		  align-items: center;
+		  justify-content: center;
+		  
           /* Default light mode */
           background-color: white;
           color: black;
@@ -28,15 +30,16 @@
       }
 
       .renumerate-dialog-close {
-          position: absolute;
-          top: 0px;
-          right: 5px;
+		  padding-top: 20px;
+		  padding-right: 20px;
           background: none;
           border: none;
-          font-size: 24px;
+		  font-weight: 30;
+          font-size: 32px;
           line-height: 1;
           cursor: pointer;
           color: #666;
+		  align-self: flex-end;
       }
 
       .renumerate-dialog-close:hover {
@@ -44,17 +47,23 @@
       }
 
       .renumerate-dialog-content {
-          flex-grow: 1;
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          padding: 25px;
+		  justify-content: center;
+		  border-radius: 8px;
+		  items-align: center;
+		  align-items: center;
+		  background-color: #fcfbf9;
+		  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
       }
 
       .renumerate-dialog-content iframe {
           flex-grow: 1;
           width: 100%;
           height: 100%;
+		  min-height: 400px;
+		  min-width: 600px;
           border: none;
           margin: 0;
           padding: 0;
@@ -63,21 +72,21 @@
       /* Dark mode via media query */
       @media (prefers-color-scheme: dark) {
           .renumerate-dialog {
-              background-color: #2c2c2c;
+              background-color:rgba(0, 0, 0, 0);
               color: #f0f0f0;
               border-color: #444;
           }
 
           .renumerate-dialog-close {
-              color: #aaa;
+              color: #000000;
           }
 
           .renumerate-dialog-close:hover {
-              color: #fff;
+              color: #;
           }
 
           .renumerate-dialog::backdrop {
-              background-color: rgba(0,0,0,0.7);
+              background-color: rgba(0, 0, 0, 0.04);
           }
       }
 

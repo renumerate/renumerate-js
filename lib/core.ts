@@ -109,7 +109,7 @@ export class Renumerate {
 		dialog.appendChild(content);
 
 		// Move the close button to inside the content
-		content.prepend(closeButton)
+		content.prepend(closeButton);
 
 		document.body.appendChild(dialog);
 		dialog.showModal();

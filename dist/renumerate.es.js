@@ -1,7 +1,7 @@
 var d = Object.defineProperty;
 var c = (o, e, t) => e in o ? d(o, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[e] = t;
 var s = (o, e, t) => c(o, typeof e != "symbol" ? e + "" : e, t);
-class u {
+class m {
   constructor(e) {
     s(this, "config");
     this.config = e, this.injectStylesheet(), this.addListener();
@@ -49,8 +49,8 @@ class u {
     });
     const n = document.createElement("div");
     return n.className = "renumerate-dialog-content", n.innerHTML = `
-      <iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>
-    `, t.appendChild(n), document.body.appendChild(t), t.showModal(), t.addEventListener("close", () => {
+			<iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>
+				`, t.appendChild(n), n.prepend(r), document.body.appendChild(t), t.showModal(), t.addEventListener("close", () => {
       t.remove();
     }), t;
   }
@@ -99,8 +99,8 @@ class u {
     const e = document.createElement("style");
     e.type = "text/css", e.setAttribute("data-renumerate-dialog-styles", "true"), e.innerHTML = `
       .renumerate-dialog {
-          min-width: 800px;
-          min-height: 600px;
+          min-width: 100vw;
+          min-height: 100vh;
           width: 800px;
           max-width: 90%;
           max-height: 90%;
@@ -114,7 +114,9 @@ class u {
           transform: translate(-50%, -50%);
           display: flex; /* Use flexbox for full height */
           flex-direction: column;
-          
+		  align-items: center;
+		  justify-content: center;
+		  
           /* Default light mode */
           background-color: white;
           color: black;
@@ -125,15 +127,16 @@ class u {
       }
 
       .renumerate-dialog-close {
-          position: absolute;
-          top: 0px;
-          right: 5px;
+		  padding-top: 20px;
+		  padding-right: 20px;
           background: none;
           border: none;
-          font-size: 24px;
+		  font-weight: 30;
+          font-size: 32px;
           line-height: 1;
           cursor: pointer;
           color: #666;
+		  align-self: flex-end;
       }
 
       .renumerate-dialog-close:hover {
@@ -141,17 +144,23 @@ class u {
       }
 
       .renumerate-dialog-content {
-          flex-grow: 1;
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          padding: 25px;
+		  justify-content: center;
+		  border-radius: 8px;
+		  items-align: center;
+		  align-items: center;
+		  background-color: #fcfbf9;
+		  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
       }
 
       .renumerate-dialog-content iframe {
           flex-grow: 1;
           width: 100%;
           height: 100%;
+		  min-height: 400px;
+		  min-width: 600px;
           border: none;
           margin: 0;
           padding: 0;
@@ -160,21 +169,21 @@ class u {
       /* Dark mode via media query */
       @media (prefers-color-scheme: dark) {
           .renumerate-dialog {
-              background-color: #2c2c2c;
+              background-color:rgba(0, 0, 0, 0);
               color: #f0f0f0;
               border-color: #444;
           }
 
           .renumerate-dialog-close {
-              color: #aaa;
+              color: #000000;
           }
 
           .renumerate-dialog-close:hover {
-              color: #fff;
+              color: #;
           }
 
           .renumerate-dialog::backdrop {
-              background-color: rgba(0,0,0,0.7);
+              background-color: rgba(0, 0, 0, 0.04);
           }
       }
 
@@ -272,5 +281,5 @@ class u {
   }
 }
 export {
-  u as Renumerate
+  m as Renumerate
 };
