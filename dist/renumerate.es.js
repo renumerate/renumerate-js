@@ -176,7 +176,7 @@ class m {
 				.renumerate-dialog-content {
 					padding: 5px;
 					width: 90vw;
-					height: 90vh;
+					max-height: 90vh;
 				}
 			}
 
