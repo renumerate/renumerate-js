@@ -105,6 +105,8 @@ export class Renumerate {
 
 		content.innerHTML = `
 			<iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
+			<iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
+			
 				`;
 		dialog.appendChild(content);
 
@@ -194,141 +196,117 @@ export class Renumerate {
 		const styleSheet = document.createElement("style");
 		styleSheet.type = "text/css";
 		styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
+
 		styleSheet.innerHTML = `
-      .renumerate-dialog {
-          min-width: 100vw;
-          min-height: 100vh;
-          width: 800px;
-          max-width: 90%;
-          max-height: 90%;
-          border: none;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          padding: 0px;
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          display: flex; /* Use flexbox for full height */
-          flex-direction: column;
-		  align-items: center;
-		  justify-content: center;
-		  
-          /* Default light mode */
-          background-color: white;
-          color: black;
-      }
+			.renumerate-dialog {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 800px;
+				max-width: 90%;
+				max-height: 90%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				background-color: transparent;
+				color: #f0f0f0;
+				border: none;
+				border-radius: 8px;
+				padding: 0;
+			}
 
-      .renumerate-dialog::backdrop {
-          background-color: rgba(0,0,0,0.5);
-      }
+			.renumerate-dialog::backdrop {
+				background-color: rgba(0, 0, 0, 0.04);
+			}
 
-      .renumerate-dialog-close {
-		  padding-top: 20px;
-		  padding-right: 20px;
-          background: none;
-          border: none;
-		  font-weight: 30;
-          font-size: 32px;
-          line-height: 1;
-          cursor: pointer;
-          color: #666;
-		  align-self: flex-end;
-      }
+			.renumerate-dialog-close {
+				position: absolute;
+				top: 16px;
+				right: 25px;
+				background: none;
+				border: none;
+				font-size: 32px;
+				font-weight: 30;
+				line-height: 1;
+				color: #666;
+				cursor: pointer;
+				z-index: 1000;
+			}
 
-      .renumerate-dialog-close:hover {
-          color: #000;
-      }
+			.renumerate-dialog-close:hover {
+				color: #000;
+			}
 
-      .renumerate-dialog-content {
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-		  justify-content: center;
-		  border-radius: 8px;
-		  items-align: center;
-		  align-items: center;
-		  background-color: #fcfbf9;
-		  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-      }
+			.renumerate-dialog-content {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+				justify-content: center;
+				align-items: center;
+				border-radius: 8px;
+				background-color: #fcfbf9;
+				box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+				padding-top: 50px;
+			}
 
-      .renumerate-dialog-content iframe {
-          flex-grow: 1;
-          width: 100%;
-          height: 100%;
-		  min-height: 400px;
-		  min-width: 600px;
-          border: none;
-          margin: 0;
-          padding: 0;
-      }
+			.renumerate-dialog-content iframe {
+				width: 100%;
+				height: 100%;
+				min-height: 400px;
+				min-width: 600px;
+				border: none;
+				margin: 0;
+				padding: 0;
+				flex-grow: 1;
+			}
 
-      /* Dark mode via media query */
-      @media (prefers-color-scheme: dark) {
-          .renumerate-dialog {
-              background-color:rgba(0, 0, 0, 0);
-              color: #f0f0f0;
-              border-color: #444;
-          }
+			@media screen and (max-width: 1024px) {
+				.renumerate-dialog {
+					width: 90vw;
+					min-width: 600px;
+				}
+			}
 
-          .renumerate-dialog-close {
-              color: #000000;
-          }
+			@media screen and (max-width: 768px) {
+				.renumerate-dialog-content {
+					padding: 5px;
+					width: 90vw;
+					height: 90vh;
+				}
+			}
 
-          .renumerate-dialog-close:hover {
-              color: #;
-          }
+			@media screen and (max-width: 480px) {
+					.renumerate-dialog {
+						min-width: 100vw;
+						width: 100vw;
+						max-width: 100vw;
+						height: 100vh;
+						max-height: 100vh;
+						border-radius: 0;
+						top: 0;
+						left: 0;
+						transform: none;
+					}
 
-          .renumerate-dialog::backdrop {
-              background-color: rgba(0, 0, 0, 0.04);
-          }
-      }
+					.renumerate-dialog-content {
+						padding: 5px;
+						min-width: 100vw;
+						width: 100vw;
+						max-width: 100vw;
+						min-height: 100vh;
+						height: 100vh;
+						max-height: 100vh;
+					}
 
-      /* Responsive Media Queries */
-      @media screen and (max-width: 1024px) {
-          .renumerate-dialog {
-              min-width: 600px;
-              width: 90vw;
-          }
-      }
-
-      @media screen and (max-width: 768px) {
-          .renumerate-dialog {
-              min-width: 95vw;
-              width: 95vw;
-              max-width: 95vw;
-          }
-
-          .renumerate-dialog-close {
-              font-size: 20px;
-              top: 5px;
-              right: 5px;
-          }
-      }
-
-      @media screen and (max-width: 480px) {
-          .renumerate-dialog {
-              min-width: 100vw;
-              width: 100vw;
-              max-width: 100vw;
-              height: 100vh;
-              max-height: 100vh;
-              border-radius: 0;
-              top: 0;
-              left: 0;
-              transform: none;
-          }
-
-          .renumerate-dialog-content {
-              padding: 5px;
-          }
-
-          .renumerate-dialog-close {
-              font-size: 18px;
-              top: 3px;
-              right: 3px;
-          }
-      }
+					.renumerate-dialog-close {
+						font-size: 32px;
+						top: 20px;
+						right: 20px;
+					}
+			}
 
       .renumerate-cancel-btn {
         display: inline-flex;
