@@ -102,10 +102,14 @@ export class Renumerate {
 		// Create the content
 		const content = document.createElement("div");
 		content.className = "renumerate-dialog-content";
+
 		content.innerHTML = `
-      <iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
-    `;
+			<iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>
+				`;
 		dialog.appendChild(content);
+
+		// Move the close button to inside the content
+		content.prepend(closeButton)
 
 		document.body.appendChild(dialog);
 		dialog.showModal();
@@ -192,8 +196,8 @@ export class Renumerate {
 		styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
 		styleSheet.innerHTML = `
       .renumerate-dialog {
-          min-width: 800px;
-          min-height: 600px;
+          min-width: 100vw;
+          min-height: 100vh;
           width: 800px;
           max-width: 90%;
           max-height: 90%;
@@ -207,7 +211,9 @@ export class Renumerate {
           transform: translate(-50%, -50%);
           display: flex; /* Use flexbox for full height */
           flex-direction: column;
-          
+		  align-items: center;
+		  justify-content: center;
+		  
           /* Default light mode */
           background-color: white;
           color: black;
@@ -218,15 +224,16 @@ export class Renumerate {
       }
 
       .renumerate-dialog-close {
-          position: absolute;
-          top: 0px;
-          right: 5px;
+		  padding-top: 20px;
+		  padding-right: 20px;
           background: none;
           border: none;
-          font-size: 24px;
+		  font-weight: 30;
+          font-size: 32px;
           line-height: 1;
           cursor: pointer;
           color: #666;
+		  align-self: flex-end;
       }
 
       .renumerate-dialog-close:hover {
@@ -234,17 +241,23 @@ export class Renumerate {
       }
 
       .renumerate-dialog-content {
-          flex-grow: 1;
           display: flex;
           flex-direction: column;
           overflow: hidden;
-          padding: 25px;
+		  justify-content: center;
+		  border-radius: 8px;
+		  items-align: center;
+		  align-items: center;
+		  background-color: #fcfbf9;
+		  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
       }
 
       .renumerate-dialog-content iframe {
           flex-grow: 1;
           width: 100%;
           height: 100%;
+		  min-height: 400px;
+		  min-width: 600px;
           border: none;
           margin: 0;
           padding: 0;
@@ -253,21 +266,21 @@ export class Renumerate {
       /* Dark mode via media query */
       @media (prefers-color-scheme: dark) {
           .renumerate-dialog {
-              background-color: #2c2c2c;
+              background-color:rgba(0, 0, 0, 0);
               color: #f0f0f0;
               border-color: #444;
           }
 
           .renumerate-dialog-close {
-              color: #aaa;
+              color: #000000;
           }
 
           .renumerate-dialog-close:hover {
-              color: #fff;
+              color: #;
           }
 
           .renumerate-dialog::backdrop {
-              background-color: rgba(0,0,0,0.7);
+              background-color: rgba(0, 0, 0, 0.04);
           }
       }
 
