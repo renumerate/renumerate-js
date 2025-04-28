@@ -1,20 +1,20 @@
-import { jsx as o } from "react/jsx-runtime";
+import { jsx as i } from "react/jsx-runtime";
 import r from "react";
-import { Renumerate as i } from "../renumerate.es.js";
-const u = r.createContext(
+import { Renumerate as u } from "../renumerate.es.js";
+const o = r.createContext(
   null
 );
-function l({
+function h({
   config: t,
   children: e
 }) {
-  const n = new i(t);
-  return /* @__PURE__ */ o(u.Provider, { value: { instance: n }, children: e });
+  const n = new u(t);
+  return /* @__PURE__ */ i(o.Provider, { value: { instance: n }, children: e });
 }
-function h({
+function l({
   sessionId: t
 }) {
-  const e = r.useContext(u);
+  const e = r.useContext(o);
   if (!e)
     throw new Error("useRenumerate must be used within a RenumerateProvider");
   return {
@@ -23,11 +23,11 @@ function h({
     }, [t, e.instance])
   };
 }
-function b({ sessionId: t, className: e }) {
-  const n = r.useContext(u);
+function d({ sessionId: t, className: e }) {
+  const n = r.useContext(o);
   if (!n)
     throw new Error("useRenumerate must be used within a RenumerateProvider");
-  return /* @__PURE__ */ o(
+  return /* @__PURE__ */ i(
     "button",
     {
       type: "button",
@@ -39,20 +39,28 @@ function b({ sessionId: t, className: e }) {
     }
   );
 }
-function d({ sessionId: t, className: e }) {
-  if (!r.useContext(u))
+function p({ sessionId: t, className: e }) {
+  if (!r.useContext(o))
     throw new Error("useRenumerate must be used within a RenumerateProvider");
-  return /* @__PURE__ */ o("div", { className: e || "renumerate-subscription-hub", children: /* @__PURE__ */ o(
-    "iframe",
+  return /* @__PURE__ */ i(
+    "div",
     {
-      title: "SubscriptionHub",
-      src: `https://renumerate.com/subscription/${t}`
+      className: e || "renumerate-subscription-hub",
+      style: { height: "100%", width: "100%", minHeight: "220px" },
+      children: /* @__PURE__ */ i(
+        "iframe",
+        {
+          title: "SubscriptionHub",
+          src: `https://renumerate.com/subscription/${t}`,
+          style: { height: "100%", width: "100%", minHeight: "220px" }
+        }
+      )
     }
-  ) });
+  );
 }
 export {
-  b as CancelButton,
-  l as RenumerateProvider,
-  d as SubscriptionHub,
-  h as useRenumerate
+  d as CancelButton,
+  h as RenumerateProvider,
+  p as SubscriptionHub,
+  l as useRenumerate
 };

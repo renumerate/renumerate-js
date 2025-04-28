@@ -93,10 +93,14 @@ export function SubscriptionHub({ sessionId, className }: UseRenumerateParams) {
 	}
 
 	return (
-		<div className={className || "renumerate-subscription-hub"}>
+		<div
+			className={className || "renumerate-subscription-hub"}
+			style={{ height: "100%", width: "100%", minHeight: "220px" }}
+		>
 			<iframe
 				title="SubscriptionHub"
 				src={`https://renumerate.com/subscription/${sessionId}`}
+				style={{ height: "100%", width: "100%", minHeight: "220px" }}
 			/>
 		</div>
 	);
