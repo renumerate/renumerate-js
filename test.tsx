@@ -47,7 +47,7 @@ function App() {
           
           <div className="mt-4">
             <h3 className="font-semibold mb-2">SubscriptionHub</h3>
-            <div >
+            <div>
               <SubscriptionHub 
                 sessionId={subscriptionSessionId} 
               />
