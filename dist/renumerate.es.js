@@ -1,7 +1,7 @@
 var d = Object.defineProperty;
-var c = (o, e, t) => e in o ? d(o, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[e] = t;
-var s = (o, e, t) => c(o, typeof e != "symbol" ? e + "" : e, t);
-class u {
+var c = (i, e, t) => e in i ? d(i, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : i[e] = t;
+var s = (i, e, t) => c(i, typeof e != "symbol" ? e + "" : e, t);
+class m {
   constructor(e) {
     s(this, "config");
     this.config = e, this.injectStylesheet(), this.addListener();
@@ -27,10 +27,10 @@ class u {
     n.textContent = "Cancel Subscription", n.addEventListener("click", () => {
       this.showRetentionView(t);
     }), r ? n.className = r : n.className = "renumerate-cancel-btn";
-    const i = document.getElementById(e);
-    if (!i)
+    const o = document.getElementById(e);
+    if (!o)
       throw new Error(`Element with id ${e} not found`);
-    i.appendChild(n);
+    o.appendChild(n);
   }
   /**
    * Show retention view for a customer
@@ -49,8 +49,8 @@ class u {
     });
     const n = document.createElement("div");
     return n.className = "renumerate-dialog-content", n.innerHTML = `
-      <iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>
-    `, t.appendChild(n), document.body.appendChild(t), t.showModal(), t.addEventListener("close", () => {
+			<iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>			
+				`, t.appendChild(n), n.prepend(r), document.body.appendChild(t), t.showModal(), t.addEventListener("close", () => {
       t.remove();
     }), t;
   }
@@ -66,10 +66,10 @@ class u {
       );
     const n = document.createElement("div");
     n.className = r || "renumerate-subscription-hub";
-    const i = document.getElementById(e);
-    if (!i)
+    const o = document.getElementById(e);
+    if (!o)
       throw new Error(`Element with id ${e} not found`);
-    i.appendChild(n);
+    o.appendChild(n);
     const a = document.createElement("iframe");
     return a.src = `https://renumerate.com/subscription/${t}`, a.width = "100%", a.height = "300px", n.appendChild(a), n;
   }
@@ -98,131 +98,115 @@ class u {
       return;
     const e = document.createElement("style");
     e.type = "text/css", e.setAttribute("data-renumerate-dialog-styles", "true"), e.innerHTML = `
-      .renumerate-dialog {
-          min-width: 800px;
-          min-height: 600px;
-          width: 800px;
-          max-width: 90%;
-          max-height: 90%;
-          border: none;
-          border-radius: 8px;
-          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-          padding: 0px;
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          display: flex; /* Use flexbox for full height */
-          flex-direction: column;
-          
-          /* Default light mode */
-          background-color: white;
-          color: black;
-      }
+			.renumerate-dialog {
+				position: fixed;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+				width: 800px;
+				max-width: 90%;
+				max-height: 90%;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				background-color: transparent;
+				color: #f0f0f0;
+				border: none;
+				border-radius: 8px;
+				padding: 0;
+			}
 
-      .renumerate-dialog::backdrop {
-          background-color: rgba(0,0,0,0.5);
-      }
+			.renumerate-dialog::backdrop {
+				background-color: rgba(0, 0, 0, 0.04);
+			}
 
-      .renumerate-dialog-close {
-          position: absolute;
-          top: 0px;
-          right: 5px;
-          background: none;
-          border: none;
-          font-size: 24px;
-          line-height: 1;
-          cursor: pointer;
-          color: #666;
-      }
+			.renumerate-dialog-close {
+				position: absolute;
+				top: 16px;
+				right: 25px;
+				background: none;
+				border: none;
+				font-size: 32px;
+				font-weight: 30;
+				line-height: 1;
+				color: #666;
+				cursor: pointer;
+				z-index: 1000;
+			}
 
-      .renumerate-dialog-close:hover {
-          color: #000;
-      }
+			.renumerate-dialog-close:hover {
+				color: #000;
+			}
 
-      .renumerate-dialog-content {
-          flex-grow: 1;
-          display: flex;
-          flex-direction: column;
-          overflow: hidden;
-          padding: 25px;
-      }
+			.renumerate-dialog-content {
+				position: relative;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+				justify-content: center;
+				align-items: center;
+				border-radius: 8px;
+				background-color: #fcfbf9;
+				box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+				padding-top: 50px;
+			}
 
-      .renumerate-dialog-content iframe {
-          flex-grow: 1;
-          width: 100%;
-          height: 100%;
-          border: none;
-          margin: 0;
-          padding: 0;
-      }
+			.renumerate-dialog-content iframe {
+				width: 100%;
+				height: 100%;
+				min-height: 400px;
+				min-width: 600px;
+				border: none;
+				margin: 0;
+				padding: 0;
+				flex-grow: 1;
+			}
 
-      /* Dark mode via media query */
-      @media (prefers-color-scheme: dark) {
-          .renumerate-dialog {
-              background-color: #2c2c2c;
-              color: #f0f0f0;
-              border-color: #444;
-          }
+			@media screen and (max-width: 1024px) {
+				.renumerate-dialog {
+					width: 90vw;
+					min-width: 600px;
+				}
+			}
 
-          .renumerate-dialog-close {
-              color: #aaa;
-          }
+			@media screen and (max-width: 768px) {
+				.renumerate-dialog-content {
+					padding: 5px;
+					width: 90vw;
+					max-height: 90vh;
+				}
+			}
 
-          .renumerate-dialog-close:hover {
-              color: #fff;
-          }
+			@media screen and (max-width: 480px) {
+					.renumerate-dialog {
+						min-width: 100vw;
+						width: 100vw;
+						max-width: 100vw;
+						height: 100vh;
+						max-height: 100vh;
+						border-radius: 0;
+						top: 0;
+						left: 0;
+						transform: none;
+					}
 
-          .renumerate-dialog::backdrop {
-              background-color: rgba(0,0,0,0.7);
-          }
-      }
+					.renumerate-dialog-content {
+						padding: 5px;
+						min-width: 100vw;
+						width: 100vw;
+						max-width: 100vw;
+						min-height: 100vh;
+						height: 100vh;
+						max-height: 100vh;
+					}
 
-      /* Responsive Media Queries */
-      @media screen and (max-width: 1024px) {
-          .renumerate-dialog {
-              min-width: 600px;
-              width: 90vw;
-          }
-      }
-
-      @media screen and (max-width: 768px) {
-          .renumerate-dialog {
-              min-width: 95vw;
-              width: 95vw;
-              max-width: 95vw;
-          }
-
-          .renumerate-dialog-close {
-              font-size: 20px;
-              top: 5px;
-              right: 5px;
-          }
-      }
-
-      @media screen and (max-width: 480px) {
-          .renumerate-dialog {
-              min-width: 100vw;
-              width: 100vw;
-              max-width: 100vw;
-              height: 100vh;
-              max-height: 100vh;
-              border-radius: 0;
-              top: 0;
-              left: 0;
-              transform: none;
-          }
-
-          .renumerate-dialog-content {
-              padding: 5px;
-          }
-
-          .renumerate-dialog-close {
-              font-size: 18px;
-              top: 3px;
-              right: 3px;
-          }
-      }
+					.renumerate-dialog-close {
+						font-size: 32px;
+						top: 20px;
+						right: 20px;
+					}
+			}
 
       .renumerate-cancel-btn {
         display: inline-flex;
@@ -272,5 +256,5 @@ class u {
   }
 }
 export {
-  u as Renumerate
+  m as Renumerate
 };
