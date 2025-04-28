@@ -59,7 +59,7 @@ function App() {
   );
 }
 
-// Mount the app
+// Mount the app on index.html
 const rootElement = document.getElementById("react-root");
 if (rootElement) {
   ReactDOM.createRoot(rootElement).render(<App />);
