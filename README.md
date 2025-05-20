@@ -26,7 +26,7 @@ Retention sessions allow you to present a retention workflow when a customer goe
 
 *Retention sessions begin with `ret_`*
 
-To generate a customer's session ID, make a POST request to `https://renumerate.com/api/v1/retention/session` from your application's backend.
+To generate a customer's session ID, make a POST request to `https://api.renumerate.com/v1/retention/session` from your application's backend.
 
 Ensure the following:
 
@@ -58,7 +58,7 @@ const requestBody = {
   },
 };
 
-const response = await fetch("https://renumerate.com/retention/session", {
+const response = await fetch("https://api.renumerate.com/v1/retention/session", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
@@ -78,7 +78,7 @@ Subscription sessions allow you to present the SubscriptionHub widget to your cu
 
 *Subscription sessions begin with `sub_`*
 
-To generate a customer's session ID, make a POST request to `https://renumerate.com/api/v1/subscription/session` from your application's backend.
+To generate a customer's session ID, make a POST request to `https://api.renumerate.com/v1/subscription/session` from your application's backend.
 
 Ensure the following:
 
@@ -105,7 +105,7 @@ const requestBody = {
   },
 };
 
-const response = await fetch("https://renumerate.com/subscription/session", {
+const response = await fetch("https://api.renumerate.com/v1/subscription/session", {
   method: "POST",
   headers: {
     "Content-Type": "application/json",
