@@ -1,9 +1,9 @@
 var d = Object.defineProperty;
-var c = (i, e, t) => e in i ? d(i, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : i[e] = t;
-var s = (i, e, t) => c(i, typeof e != "symbol" ? e + "" : e, t);
-class m {
+var c = (o, e, t) => e in o ? d(o, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[e] = t;
+var a = (o, e, t) => c(o, typeof e != "symbol" ? e + "" : e, t);
+class u {
   constructor(e) {
-    s(this, "config");
+    a(this, "config");
     this.config = e, this.injectStylesheet(), this.addListener();
   }
   /**
@@ -18,7 +18,7 @@ class m {
    * Mount a cancel button for a subscriber
    * @param sessionId Mandatory customer session identifier
    */
-  mountCancelButton(e, t, r = "") {
+  mountCancelButton(e, t, i = "") {
     if (document.querySelector("style[data-renumerate-modal-styles]") || this.injectStylesheet(), !this.isSessionType(t, "retention"))
       throw new Error(
         `Invalid sessionId: ${t}. Expected a retention session ID.`
@@ -26,11 +26,11 @@ class m {
     const n = document.createElement("button");
     n.textContent = "Cancel Subscription", n.addEventListener("click", () => {
       this.showRetentionView(t);
-    }), r ? n.className = r : n.className = "renumerate-cancel-btn";
-    const o = document.getElementById(e);
-    if (!o)
+    }), i ? n.className = i : n.className = "renumerate-cancel-btn";
+    const r = document.getElementById(e);
+    if (!r)
       throw new Error(`Element with id ${e} not found`);
-    o.appendChild(n);
+    r.appendChild(n);
   }
   /**
    * Show retention view for a customer
@@ -43,14 +43,17 @@ class m {
       );
     const t = document.createElement("dialog");
     t.className = "renumerate-dialog";
-    const r = document.createElement("button");
-    r.className = "renumerate-dialog-close", r.innerHTML = "&times;", r.setAttribute("aria-label", "Close"), t.appendChild(r), r.addEventListener("click", () => {
+    const i = document.createElement("button");
+    i.className = "renumerate-dialog-close", i.innerHTML = "&times;", i.setAttribute("aria-label", "Close"), t.appendChild(i), i.addEventListener("click", () => {
       t.close();
     });
     const n = document.createElement("div");
-    return n.className = "renumerate-dialog-content", n.innerHTML = `
-			<iframe src="https://renumerate.com/cancellation/${e}" frameborder="0"></iframe>			
-				`, t.appendChild(n), n.prepend(r), document.body.appendChild(t), t.showModal(), t.addEventListener("close", () => {
+    n.className = "renumerate-dialog-content";
+    const r = document.createElement("iframe");
+    return r.src = this.buildUrl({
+      target: "retention",
+      sessionId: e
+    }), n.appendChild(r), t.appendChild(n), n.prepend(i), document.body.appendChild(t), t.showModal(), t.addEventListener("close", () => {
       t.remove();
     }), t;
   }
@@ -59,19 +62,32 @@ class m {
    * @param sessionId
    * @returns
    */
-  mountSubscriptionHub(e, t, r = "") {
+  mountSubscriptionHub(e, t, i = "") {
     if (document.querySelector("style[data-renumerate-modal-styles]") || this.injectStylesheet(), !this.isSessionType(t, "subscription"))
       throw new Error(
         `Invalid sessionId: ${t}. Expected a subscription session ID.`
       );
     const n = document.createElement("div");
-    n.className = r || "renumerate-subscription-hub";
-    const o = document.getElementById(e);
-    if (!o)
+    n.className = i || "renumerate-subscription-hub";
+    const r = document.getElementById(e);
+    if (!r)
       throw new Error(`Element with id ${e} not found`);
-    o.appendChild(n);
-    const a = document.createElement("iframe");
-    return a.src = `https://renumerate.com/subscription/${t}`, a.width = "100%", a.height = "300px", n.appendChild(a), n;
+    r.appendChild(n);
+    const s = document.createElement("iframe");
+    return s.src = this.getSubscriptionHubUrl(t), s.width = "100%", s.height = "300px", n.appendChild(s), n;
+  }
+  /**
+   * Get subscription hub url
+   */
+  getSubscriptionHubUrl(e) {
+    if (!this.isSessionType(e, "subscription"))
+      throw new Error(
+        `Invalid sessionId: ${e}. Expected a subscription session ID.`
+      );
+    return this.buildUrl({
+      target: "subscription",
+      sessionId: e
+    });
   }
   /* Private functions */
   /**
@@ -250,11 +266,28 @@ class m {
         );
         return;
       }
-      const { type: r, data: n } = e.data;
-      r === "cancel-subscription" && this.showRetentionView(n.sessionId);
+      const { type: i, data: n } = e.data;
+      i === "cancel-subscription" && this.showRetentionView(n.sessionId);
     });
+  }
+  /**
+   * Private: Get the target URL
+   * @param type The type of session ("retention" or "subscription")
+   */
+  buildUrl(e) {
+    const t = typeof window < "u" && window.RENUMERATE_LOCAL === !0;
+    switch (e.target) {
+      case "retention":
+        return `${t ? "http://localhost:3000/retention?session_id=" : "https://retention.renumerate.com/"}${e.sessionId}`;
+      case "subscription":
+        return `${t ? "http://localhost:3000/subs?session_id=" : "https://subs.renumerate.com/"}${e.sessionId}`;
+      case "event":
+        return t ? "http://localhost:3000/event/" : "https://renumerate.com/event/";
+      default:
+        throw new Error(`Unknown type: ${e}`);
+    }
   }
 }
 export {
-  m as Renumerate
+  u as Renumerate
 };

@@ -1,5 +1,5 @@
 import React from "react";
-import { Renumerate, RenumerateConfig } from "./core";
+import { Renumerate, type RenumerateConfig } from "./core";
 
 interface RenumerateContextValue {
 	instance: Renumerate;
@@ -99,7 +99,7 @@ export function SubscriptionHub({ sessionId, className }: UseRenumerateParams) {
 		>
 			<iframe
 				title="SubscriptionHub"
-				src={`https://renumerate.com/subscription/${sessionId}`}
+				src={context.instance.getSubscriptionHubUrl(sessionId)}
 				style={{ height: "100%", width: "100%", minHeight: "220px" }}
 			/>
 		</div>

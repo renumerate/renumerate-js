@@ -1,3 +1,14 @@
+// Private interface
+interface Window {
+	RENUMERATE_LOCAL?: boolean;
+}
+
+type UrlBuildParams =
+	| { target: "retention"; sessionId: string }
+	| { target: "subscription"; sessionId: string }
+	| { target: "event" };
+
+// Public interface
 export interface RenumerateConfig {
 	publicKey: string;
 	debug?: boolean;
@@ -103,9 +114,13 @@ export class Renumerate {
 		const content = document.createElement("div");
 		content.className = "renumerate-dialog-content";
 
-		content.innerHTML = `
-			<iframe src="https://renumerate.com/cancellation/${sessionId}" frameborder="0"></iframe>			
-				`;
+		const iframe = document.createElement("iframe");
+		iframe.src = this.buildUrl({
+			target: "retention",
+			sessionId: sessionId,
+		});
+
+		content.appendChild(iframe);
 		dialog.appendChild(content);
 
 		// Move the close button to inside the content
@@ -154,13 +169,28 @@ export class Renumerate {
 		parent.appendChild(container);
 
 		const iframe = document.createElement("iframe");
-		iframe.src = `https://renumerate.com/subscription/${sessionId}`;
+		iframe.src = this.getSubscriptionHubUrl(sessionId);
 		iframe.width = "100%";
 		iframe.height = "300px";
 
 		container.appendChild(iframe);
 
 		return container;
+	}
+
+	/**
+	 * Get subscription hub url
+	 */
+	getSubscriptionHubUrl(sessionId: string): string {
+		if (!this.isSessionType(sessionId, "subscription")) {
+			throw new Error(
+				`Invalid sessionId: ${sessionId}. Expected a subscription session ID.`,
+			);
+		}
+		return this.buildUrl({
+			target: "subscription",
+			sessionId: sessionId,
+		});
 	}
 
 	/* Private functions */
@@ -358,5 +388,28 @@ export class Renumerate {
 				this.showRetentionView(data.sessionId);
 			}
 		});
+	}
+
+	/**
+	 * Private: Get the target URL
+	 * @param type The type of session ("retention" or "subscription")
+	 */
+	buildUrl(params: UrlBuildParams): string {
+		const isLocal =
+			typeof window !== "undefined" &&
+			(window as Window).RENUMERATE_LOCAL === true;
+
+		switch (params.target) {
+			case "retention":
+				return `${isLocal ? "http://localhost:3000/retention?session_id=" : "https://retention.renumerate.com/"}${params.sessionId}`;
+			case "subscription":
+				return `${isLocal ? "http://localhost:3000/subs?session_id=" : "https://subs.renumerate.com/"}${params.sessionId}`;
+			case "event":
+				return isLocal
+					? "http://localhost:3000/event/"
+					: "https://renumerate.com/event/";
+			default:
+				throw new Error(`Unknown type: ${params}`);
+		}
 	}
 }
