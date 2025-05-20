@@ -1,5 +1,5 @@
 # Run lint and build
-npm run lint && npm run build
+npm run lint:renumerate && npm run build:renumerate
 
 # Check for unstaged changes
 if [ -n "$(git diff --name-only)" ]; then

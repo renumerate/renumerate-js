@@ -1,47 +1,22 @@
 {
-	"name": "@renumerate/js",
-	"private": false,
-	"version": "0.6.2",
-	"type": "module",
-	"main": "./dist/renumerate.cjs.js",
-	"module": "./dist/renumerate.es.js",
-	"types": "./dist/core.d.ts",
-	"exports": {
-		".": {
-			"types": "./dist/core.d.ts",
-			"import": "./dist/renumerate.es.js",
-			"require": "./dist/renumerate.cjs.js"
-		},
-		"./react": {
-			"types": "./dist/react.d.ts",
-			"import": "./dist/react/index.es.js",
-			"require": "./dist/react/index.cjs.js"
-		}
-	},
-	"scripts": {
-		"dev": "vite",
-		"build": "tsc && vite build",
-		"preview": "vite preview",
-		"lint": "biome check",
-		"prepare": "husky"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "^2.0.0-beta.1",
-		"@types/react": "^17.0.0",
-		"husky": "^9.1.7",
-		"react": "^19.0.0",
-		"react-dom": "^19.0.0",
-		"typescript": "^5.5.3",
-		"vite": "^5.4.1",
-		"vite-plugin-dts": "^4.5.3"
-	},
-	"peerDependencies": {
-		"react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
-	},
-	"files": [
-		"dist",
-		"react.js",
-		"react.cjs",
-		"react.d.ts"
-	]
+  "name": "@renumerate/js",
+  "private": false,
+  "license": "MIT",
+  "workspaces": [
+    "packages/docs",
+    "packages/renumerate"
+  ],
+  "scripts": {
+    "build:docs": "npm run build --workspace=packages/docs",
+    "build:renumerate": "npm run build --workspace=packages/renumerate",
+    "dev:docs": "npm run dev --workspace=packages/docs",
+    "dev:renumerate": "npm run dev --workspace=packages/renumerate",
+    "lint:renumerate": "npm run lint --workspace=packages/renumerate",
+    "preview:renumerate": "npm run preview --workspace=packages/renumerate",
+    "test:renumerate": "npm run test --workspace=packages/policygen"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.0.0-beta.5",
+    "husky": "^9.1.7"
+  }
 }
