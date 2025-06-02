@@ -6,7 +6,7 @@
 				transform: translate(-50%, -50%);
 				width: 800px;
 				max-width: 90%;
-				max-height: 90%;
+				height: 100%;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -49,19 +49,19 @@
 				align-items: center;
 				border-radius: 8px;
 				background-color: #fcfbf9;
-				box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-				padding-top: 50px;
+				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 			}
 
 			.renumerate-dialog-content iframe {
 				width: 100%;
 				height: 100%;
-				min-height: 400px;
+				min-height: 160px;
 				min-width: 600px;
 				border: none;
 				margin: 0;
 				padding: 0;
 				flex-grow: 1;
+				transition: all 0.3s ease-in-out;
 			}
 
 			@media screen and (max-width: 1024px) {
@@ -137,4 +137,4 @@
           background-color: #e4e4e7;
           border-color: #d4d4d8;
       }
-    `,document.head.appendChild(e)}addListener(){window.addEventListener("message",e=>{if(!["https://renumerate.com"].includes(e.origin)){console.warn("Received message from unauthorized origin:",e.origin);return}const{type:i,data:n}=e.data;i==="cancel-subscription"&&this.showRetentionView(n.sessionId)})}buildUrl(e){const t=typeof window<"u"&&window.RENUMERATE_LOCAL===!0;switch(e.target){case"retention":return`${t?"http://localhost:3000/retention?session_id=":"https://retention.renumerate.com/"}${e.sessionId}`;case"subscription":return`${t?"http://localhost:3000/subs?session_id=":"https://subs.renumerate.com/"}${e.sessionId}`;case"event":return t?"http://localhost:3000/event/":"https://renumerate.com/event/";default:throw new Error(`Unknown type: ${e}`)}}}exports.Renumerate=l;
+    `,document.head.appendChild(e)}addListener(){window.addEventListener("message",e=>{if(!["https://renumerate.com"].includes(e.origin)){console.warn("Received message from unauthorized origin:",e.origin);return}const{type:i,data:n}=e.data;if(i==="cancel-subscription")this.showRetentionView(n.sessionId);else if(i==="resize"){const r=document.querySelector("dialog.renumerate-dialog");if(r){const o=r.querySelector("iframe");o&&e.data.height&&typeof e.data.height=="number"&&e.data.height>0&&(o.style.height=`${e.data.height}px`)}}})}buildUrl(e){const t=typeof window<"u"&&window.RENUMERATE_LOCAL===!0;switch(e.target){case"retention":return`${t?"http://localhost:3000/retention?session_id=":"https://retention.renumerate.com/"}${e.sessionId}`;case"subscription":return`${t?"http://localhost:3000/subs?session_id=":"https://subs.renumerate.com/"}${e.sessionId}`;case"event":return t?"http://localhost:3000/event/":"https://renumerate.com/event/";default:throw new Error(`Unknown type: ${e}`)}}}exports.Renumerate=l;

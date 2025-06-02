@@ -233,7 +233,7 @@ export class Renumerate {
 				transform: translate(-50%, -50%);
 				width: 800px;
 				max-width: 90%;
-				max-height: 90%;
+				height: 100%;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -276,19 +276,19 @@ export class Renumerate {
 				align-items: center;
 				border-radius: 8px;
 				background-color: #fcfbf9;
-				box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-				padding-top: 50px;
+				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 			}
 
 			.renumerate-dialog-content iframe {
 				width: 100%;
 				height: 100%;
-				min-height: 400px;
+				min-height: 160px;
 				min-width: 600px;
 				border: none;
 				margin: 0;
 				padding: 0;
 				flex-grow: 1;
+				transition: all 0.3s ease-in-out;
 			}
 
 			@media screen and (max-width: 1024px) {
@@ -386,6 +386,23 @@ export class Renumerate {
 			const { type, data } = event.data;
 			if (type === "cancel-subscription") {
 				this.showRetentionView(data.sessionId);
+			} else if (type === "resize") {
+				const dialog = document.querySelector(
+					"dialog.renumerate-dialog",
+				) as HTMLDialogElement;
+
+				if (dialog) {
+					const iframe = dialog.querySelector("iframe");
+					if (iframe) {
+						if (
+							event.data.height &&
+							typeof event.data.height === "number" &&
+							event.data.height > 0
+						) {
+							iframe.style.height = `${event.data.height}px`;
+						}
+					}
+				}
 			}
 		});
 	}
