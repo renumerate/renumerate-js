@@ -20,6 +20,9 @@ export interface EventData {
 
 export class Renumerate {
 	private config: RenumerateConfig;
+	private dialog: HTMLDialogElement | null = null;
+	private retentionIframe: HTMLIFrameElement | null = null;
+	private subscriptionIframe: HTMLIFrameElement | null = null;
 
 	constructor(config: RenumerateConfig) {
 		this.config = config;
@@ -96,45 +99,47 @@ export class Renumerate {
 			);
 		}
 
-		const dialog = document.createElement("dialog");
-		dialog.className = "renumerate-dialog";
+		this.dialog = document.createElement("dialog");
+		this.dialog.className = "renumerate-dialog";
 
 		// Create close button
 		const closeButton = document.createElement("button");
 		closeButton.className = "renumerate-dialog-close";
 		closeButton.innerHTML = "&times;";
 		closeButton.setAttribute("aria-label", "Close");
-		dialog.appendChild(closeButton);
+		this.dialog.appendChild(closeButton);
 
 		closeButton.addEventListener("click", () => {
-			dialog.close();
+			// We can be reasonably sure that the dialog is not null here
+			this.dialog?.close();
 		});
 
 		// Create the content
 		const content = document.createElement("div");
 		content.className = "renumerate-dialog-content";
 
-		const iframe = document.createElement("iframe");
-		iframe.src = this.buildUrl({
+		this.retentionIframe = document.createElement("iframe");
+		this.retentionIframe.src = this.buildUrl({
 			target: "retention",
 			sessionId: sessionId,
 		});
 
-		content.appendChild(iframe);
-		dialog.appendChild(content);
+		content.appendChild(this.retentionIframe);
+		this.dialog.appendChild(content);
 
 		// Move the close button to inside the content
 		content.prepend(closeButton);
 
-		document.body.appendChild(dialog);
-		dialog.showModal();
+		document.body.appendChild(this.dialog);
+		this.dialog.showModal();
 
 		// Teardown
-		dialog.addEventListener("close", () => {
-			dialog.remove();
+		this.dialog.addEventListener("close", () => {
+			// We can be reasonably sure that the dialog is not null here
+			this.dialog?.remove();
 		});
 
-		return dialog;
+		return this.dialog;
 	}
 
 	/**
@@ -168,12 +173,12 @@ export class Renumerate {
 		}
 		parent.appendChild(container);
 
-		const iframe = document.createElement("iframe");
-		iframe.src = this.getSubscriptionHubUrl(sessionId);
-		iframe.width = "100%";
-		iframe.height = "300px";
+		this.subscriptionIframe = document.createElement("iframe");
+		this.subscriptionIframe.src = this.getSubscriptionHubUrl(sessionId);
+		this.subscriptionIframe.width = "100%";
+		this.subscriptionIframe.height = "300px";
 
-		container.appendChild(iframe);
+		container.appendChild(this.subscriptionIframe);
 
 		return container;
 	}
@@ -384,24 +389,25 @@ export class Renumerate {
 			}
 
 			const { type, data } = event.data;
-			if (type === "cancel-subscription") {
-				this.showRetentionView(data.sessionId);
-			} else if (type === "resize") {
-				const dialog = document.querySelector(
-					"dialog.renumerate-dialog",
-				) as HTMLDialogElement;
-
-				if (dialog) {
-					const iframe = dialog.querySelector("iframe");
-					if (iframe) {
-						if (
-							event.data.height &&
-							typeof event.data.height === "number" &&
-							event.data.height > 0
-						) {
-							iframe.style.height = `${event.data.height}px`;
-						}
+			switch (type) {
+				case "cancel-subscription": {
+					this.showRetentionView(data.sessionId);
+					return;
+				}
+				case "resize": {
+					if (
+						this.retentionIframe &&
+						event.data.height &&
+						typeof event.data.height === "number" &&
+						event.data.height > 0
+					) {
+						this.retentionIframe.style.height = `${event.data.height}px`;
 					}
+
+					return;
+				}
+				default: {
+					console.warn(`Unknown message type: ${type}`);
 				}
 			}
 		});
