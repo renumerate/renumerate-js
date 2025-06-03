@@ -4,6 +4,9 @@ export declare interface EventData {
 
 export declare class Renumerate {
     private config;
+    private dialog;
+    private retentionIframe;
+    private subscriptionIframe;
     constructor(config: RenumerateConfig);
     /**
      * Register an event with a name and optional data
@@ -38,6 +41,7 @@ export declare class Renumerate {
      * @returns True if the sessionId matches the type, false otherwise
      */
     private isSessionType;
+    private getIsLocal;
     /**
      * Private: Inject the stylesheet into the document head
      */
