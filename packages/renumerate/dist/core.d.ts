@@ -28,6 +28,10 @@ export declare class Renumerate {
      */
     mountSubscriptionHub(elementId: string, sessionId: string, classes?: string): HTMLElement;
     /**
+     * Get subscription hub url
+     */
+    getSubscriptionHubUrl(sessionId: string): string;
+    /**
      * Private: Check if the sessionId is of a specific type
      * @param sessionId The session ID to check
      * @param type The type to check against ("retention" or "subscription")
@@ -42,11 +46,26 @@ export declare class Renumerate {
      * Private: Add a listener for messages from the iframe
      */
     private addListener;
+    /**
+     * Private: Get the target URL
+     * @param type The type of session ("retention" or "subscription")
+     */
+    buildUrl(params: UrlBuildParams): string;
 }
 
 export declare interface RenumerateConfig {
     publicKey: string;
     debug?: boolean;
 }
+
+declare type UrlBuildParams = {
+    target: "retention";
+    sessionId: string;
+} | {
+    target: "subscription";
+    sessionId: string;
+} | {
+    target: "event";
+};
 
 export { }

@@ -23,7 +23,7 @@ function l({
     }, [t, e.instance])
   };
 }
-function d({ sessionId: t, className: e }) {
+function b({ sessionId: t, className: e }) {
   const n = r.useContext(o);
   if (!n)
     throw new Error("useRenumerate must be used within a RenumerateProvider");
@@ -39,8 +39,9 @@ function d({ sessionId: t, className: e }) {
     }
   );
 }
-function p({ sessionId: t, className: e }) {
-  if (!r.useContext(o))
+function d({ sessionId: t, className: e }) {
+  const n = r.useContext(o);
+  if (!n)
     throw new Error("useRenumerate must be used within a RenumerateProvider");
   return /* @__PURE__ */ i(
     "div",
@@ -51,7 +52,7 @@ function p({ sessionId: t, className: e }) {
         "iframe",
         {
           title: "SubscriptionHub",
-          src: `https://renumerate.com/subscription/${t}`,
+          src: n.instance.getSubscriptionHubUrl(t),
           style: { height: "100%", width: "100%", minHeight: "220px" }
         }
       )
@@ -59,8 +60,8 @@ function p({ sessionId: t, className: e }) {
   );
 }
 export {
-  d as CancelButton,
+  b as CancelButton,
   h as RenumerateProvider,
-  p as SubscriptionHub,
+  d as SubscriptionHub,
   l as useRenumerate
 };
