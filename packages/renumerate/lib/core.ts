@@ -217,6 +217,13 @@ export class Renumerate {
 		}
 	}
 
+	private getIsLocal(): boolean {
+		return (
+			typeof window !== "undefined" &&
+			(window as Window).RENUMERATE_LOCAL === true
+		);
+	}
+
 	/**
 	 * Private: Inject the stylesheet into the document head
 	 */
@@ -378,7 +385,10 @@ export class Renumerate {
 	 */
 	private addListener() {
 		window.addEventListener("message", (event) => {
-			const allowedOrigins = ["https://renumerate.com"];
+			const isLocal = this.getIsLocal();
+			const allowedOrigins = isLocal
+				? ["http://localhost:3000", "http://localhost:4321"]
+				: ["https://retention.renumerate.com", "https://subs.renumerate.com"];
 
 			if (!allowedOrigins.includes(event.origin)) {
 				console.warn(
@@ -397,11 +407,11 @@ export class Renumerate {
 				case "resize": {
 					if (
 						this.retentionIframe &&
-						event.data.height &&
-						typeof event.data.height === "number" &&
-						event.data.height > 0
+						data.height &&
+						typeof data.height === "number" &&
+						data.height > 0
 					) {
-						this.retentionIframe.style.height = `${event.data.height}px`;
+						this.retentionIframe.style.height = `${data.height}px`;
 					}
 
 					return;
@@ -418,18 +428,16 @@ export class Renumerate {
 	 * @param type The type of session ("retention" or "subscription")
 	 */
 	buildUrl(params: UrlBuildParams): string {
-		const isLocal =
-			typeof window !== "undefined" &&
-			(window as Window).RENUMERATE_LOCAL === true;
+		const isLocal = this.getIsLocal();
 
 		switch (params.target) {
 			case "retention":
-				return `${isLocal ? "http://localhost:3000/retention?session_id=" : "https://retention.renumerate.com/"}${params.sessionId}`;
+				return `${isLocal ? "http://localhost:4321/retention?session_id=" : "https://retention.renumerate.com/"}${params.sessionId}`;
 			case "subscription":
-				return `${isLocal ? "http://localhost:3000/subs?session_id=" : "https://subs.renumerate.com/"}${params.sessionId}`;
+				return `${isLocal ? "http://localhost:4321/subs?session_id=" : "https://subs.renumerate.com/"}${params.sessionId}`;
 			case "event":
 				return isLocal
-					? "http://localhost:3000/event/"
+					? "http://localhost:4321/event/"
 					: "https://renumerate.com/event/";
 			default:
 				throw new Error(`Unknown type: ${params}`);
