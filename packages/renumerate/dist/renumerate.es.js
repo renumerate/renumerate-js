@@ -1,6 +1,6 @@
 var d = Object.defineProperty;
-var c = (o, e, t) => e in o ? d(o, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : o[e] = t;
-var a = (o, e, t) => c(o, typeof e != "symbol" ? e + "" : e, t);
+var c = (s, e, t) => e in s ? d(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
+var a = (s, e, t) => c(s, typeof e != "symbol" ? e + "" : e, t);
 class u {
   constructor(e) {
     a(this, "config");
@@ -121,7 +121,7 @@ class u {
 				transform: translate(-50%, -50%);
 				width: 800px;
 				max-width: 90%;
-				max-height: 90%;
+				height: 100%;
 				display: flex;
 				flex-direction: column;
 				align-items: center;
@@ -164,19 +164,19 @@ class u {
 				align-items: center;
 				border-radius: 8px;
 				background-color: #fcfbf9;
-				box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-				padding-top: 50px;
+				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 			}
 
 			.renumerate-dialog-content iframe {
 				width: 100%;
 				height: 100%;
-				min-height: 400px;
+				min-height: 160px;
 				min-width: 600px;
 				border: none;
 				margin: 0;
 				padding: 0;
 				flex-grow: 1;
+				transition: all 0.3s ease-in-out;
 			}
 
 			@media screen and (max-width: 1024px) {
@@ -267,7 +267,17 @@ class u {
         return;
       }
       const { type: i, data: n } = e.data;
-      i === "cancel-subscription" && this.showRetentionView(n.sessionId);
+      if (i === "cancel-subscription")
+        this.showRetentionView(n.sessionId);
+      else if (i === "resize") {
+        const r = document.querySelector(
+          "dialog.renumerate-dialog"
+        );
+        if (r) {
+          const o = r.querySelector("iframe");
+          o && e.data.height && typeof e.data.height == "number" && e.data.height > 0 && (o.style.height = `${e.data.height}px`);
+        }
+      }
     });
   }
   /**
