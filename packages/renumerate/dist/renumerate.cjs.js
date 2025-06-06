@@ -50,6 +50,7 @@
 				border-radius: 8px;
 				background-color: #fcfbf9;
 				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+				min-width: 653px;
 			}
 
 			.renumerate-dialog-content iframe {
@@ -69,6 +70,10 @@
 					width: 90vw;
 					min-width: 600px;
 				}
+
+				.renumerate-dialog-content {
+					min-width: 400px;
+				}	
 			}
 
 			@media screen and (max-width: 768px) {
