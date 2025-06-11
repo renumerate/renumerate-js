@@ -258,7 +258,7 @@ export class Renumerate {
 			}
 
 			.renumerate-dialog::backdrop {
-				background-color: rgba(0, 0, 0, 0.04);
+				background-color: rgba(0, 0, 0, 0.40);
 			}
 
 			.renumerate-dialog-close {
