@@ -83,7 +83,14 @@ export class Renumerate {
 	 * Show retention view for a customer
 	 * @param sessionId Mandatory customer session identifier
 	 */
-	showRetentionView(sessionId: string): HTMLDialogElement {
+	showRetentionView(sessionId: string): HTMLDialogElement | null {
+		const existingDialog = document.querySelector(".renumerate-dialog");
+		if (existingDialog) {
+			return existingDialog instanceof HTMLDialogElement
+				? existingDialog
+				: null;
+		}
+
 		// Ensure styles are loaded
 		if (!document.querySelector("style[data-renumerate-modal-styles]")) {
 			this.injectStylesheet();

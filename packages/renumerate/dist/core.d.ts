@@ -23,7 +23,7 @@ export declare class Renumerate {
      * Show retention view for a customer
      * @param sessionId Mandatory customer session identifier
      */
-    showRetentionView(sessionId: string): HTMLDialogElement;
+    showRetentionView(sessionId: string): HTMLDialogElement | null;
     /**
      * Mount the SubscriptionHub for a customer
      * @param sessionId
