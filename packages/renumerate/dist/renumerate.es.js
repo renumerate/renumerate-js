@@ -93,13 +93,13 @@ class h {
    * Set up the Renumerate instance
    */
   initialize() {
-    this.config.debug && console.log("Renumerate initialized with config:", this.config), this.injectStylesheet(), this.addListener();
+    this.config.debug && console.info("Renumerate initialized with config:", this.config), this.injectStylesheet(), this.addListener();
   }
   /**
    * Unmount renumerate components and clean up resources
    */
   cleanup() {
-    this.config.debug && console.log("Renumerate cleaned up with config:", this.config), this.retentionDialog && (this.retentionDialog.remove(), this.retentionDialog = null), this.retentionIframe && (this.retentionIframe.remove(), this.retentionIframe = null), this.subscriptionIframe && (this.subscriptionIframe.remove(), this.subscriptionIframe = null), this.styleSheet && (this.styleSheet.remove(), this.styleSheet = null), this.windowListener && (window.removeEventListener("message", this.windowListener), this.windowListener = null);
+    this.config.debug && console.info("Renumerate cleaned up with config:", this.config), this.retentionDialog && (this.retentionDialog.remove(), this.retentionDialog = null), this.retentionIframe && (this.retentionIframe.remove(), this.retentionIframe = null), this.subscriptionIframe && (this.subscriptionIframe.remove(), this.subscriptionIframe = null), this.styleSheet && (this.styleSheet.remove(), this.styleSheet = null), this.windowListener && (window.removeEventListener("message", this.windowListener), this.windowListener = null);
   }
   /* Private functions */
   /**
@@ -282,8 +282,8 @@ class h {
    * Private: Add a listener for messages from the iframe
    */
   addListener() {
-    this.config.debug && console.log("Adding message listener for Renumerate"), this.windowListener = (e) => {
-      if (this.config.debug && console.log("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
+    this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
+      if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
           e.origin
