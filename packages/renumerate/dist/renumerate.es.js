@@ -21,7 +21,7 @@ class l {
    * Mount a cancel button for a subscriber
    * @param sessionId Mandatory customer session identifier
    */
-  mountCancelButton(e, t, r = "") {
+  mountCancelButton(e, t, i = "") {
     if (document.querySelector("style[data-renumerate-modal-styles]") || this.injectStylesheet(), !this.isSessionType(t, "retention"))
       throw new Error(
         `Invalid sessionId: ${t}. Expected a retention session ID.`
@@ -29,11 +29,11 @@ class l {
     const n = document.createElement("button");
     n.textContent = "Cancel Subscription", n.addEventListener("click", () => {
       this.showRetentionView(t);
-    }), r ? n.className = r : n.className = "renumerate-cancel-btn";
-    const i = document.getElementById(e);
-    if (!i)
+    }), i ? n.className = i : n.className = "renumerate-cancel-btn";
+    const r = document.getElementById(e);
+    if (!r)
       throw new Error(`Element with id ${e} not found`);
-    i.appendChild(n);
+    r.appendChild(n);
   }
   /**
    * Show retention view for a customer
@@ -50,11 +50,11 @@ class l {
       var n;
       (n = this.dialog) == null || n.close();
     });
-    const r = document.createElement("div");
-    return r.className = "renumerate-dialog-content", this.retentionIframe = document.createElement("iframe"), this.retentionIframe.src = this.buildUrl({
+    const i = document.createElement("div");
+    return i.className = "renumerate-dialog-content", this.retentionIframe = document.createElement("iframe"), this.retentionIframe.src = this.buildUrl({
       target: "retention",
       sessionId: e
-    }), r.appendChild(this.retentionIframe), this.dialog.appendChild(r), r.prepend(t), document.body.appendChild(this.dialog), this.dialog.showModal(), this.dialog.addEventListener("close", () => {
+    }), i.appendChild(this.retentionIframe), this.dialog.appendChild(i), i.prepend(t), document.body.appendChild(this.dialog), this.dialog.showModal(), this.dialog.addEventListener("close", () => {
       var n;
       (n = this.dialog) == null || n.remove();
     }), this.dialog;
@@ -64,17 +64,17 @@ class l {
    * @param sessionId
    * @returns
    */
-  mountSubscriptionHub(e, t, r = "") {
+  mountSubscriptionHub(e, t, i = "") {
     if (document.querySelector("style[data-renumerate-modal-styles]") || this.injectStylesheet(), !this.isSessionType(t, "subscription"))
       throw new Error(
         `Invalid sessionId: ${t}. Expected a subscription session ID.`
       );
     const n = document.createElement("div");
-    n.className = r || "renumerate-subscription-hub";
-    const i = document.getElementById(e);
-    if (!i)
+    n.className = i || "renumerate-subscription-hub";
+    const r = document.getElementById(e);
+    if (!r)
       throw new Error(`Element with id ${e} not found`);
-    return i.appendChild(n), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.width = "100%", this.subscriptionIframe.height = "300px", n.appendChild(this.subscriptionIframe), n;
+    return r.appendChild(n), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.width = "100%", this.subscriptionIframe.height = "300px", n.appendChild(this.subscriptionIframe), n;
   }
   /**
    * Get subscription hub url
@@ -274,14 +274,14 @@ class l {
         );
         return;
       }
-      const { type: n, data: i } = e.data;
+      const { type: n, data: r } = e.data;
       switch (n) {
         case "cancel-subscription": {
-          this.showRetentionView(i.sessionId);
+          this.showRetentionView(r.sessionId);
           return;
         }
         case "resize": {
-          this.retentionIframe && i.height && typeof i.height == "number" && i.height > 0 && (this.retentionIframe.style.height = `${i.height}px`);
+          this.retentionIframe && r.height && typeof r.height == "number" && r.height > 0 && (this.retentionIframe.style.height = `${r.height}px`);
           return;
         }
         default:
@@ -294,12 +294,12 @@ class l {
    * @param type The type of session ("retention" or "subscription")
    */
   buildUrl(e) {
-    const t = this.getIsLocal();
+    const t = this.getIsLocal(), i = (n, r) => `${n}?session_id=${r}`;
     switch (e.target) {
       case "retention":
-        return `${t ? "http://localhost:4321/retention?session_id=" : "https://retention.renumerate.com/"}${e.sessionId}`;
+        return i(t ? "http://localhost:4321/retention" : "https://retention.renumerate.com", e.sessionId);
       case "subscription":
-        return `${t ? "http://localhost:4321/subs?session_id=" : "https://subs.renumerate.com/"}${e.sessionId}`;
+        return i(t ? "http://localhost:4321/subs" : "https://subs.renumerate.com", e.sessionId);
       case "event":
         return t ? "http://localhost:4321/event/" : "https://renumerate.com/event/";
       default:

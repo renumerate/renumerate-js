@@ -432,14 +432,28 @@ export class Renumerate {
 	 * Private: Get the target URL
 	 * @param type The type of session ("retention" or "subscription")
 	 */
-	buildUrl(params: UrlBuildParams): string {
+	private buildUrl(params: UrlBuildParams): string {
 		const isLocal = this.getIsLocal();
 
+		const withSessionId = (url: string, sessionId: string) => {
+			return `${url}?session_id=${sessionId}`;
+		};
+
 		switch (params.target) {
-			case "retention":
-				return `${isLocal ? "http://localhost:4321/retention?session_id=" : "https://retention.renumerate.com/"}${params.sessionId}`;
-			case "subscription":
-				return `${isLocal ? "http://localhost:4321/subs?session_id=" : "https://subs.renumerate.com/"}${params.sessionId}`;
+			case "retention": {
+				const url = isLocal
+					? "http://localhost:4321/retention"
+					: "https://retention.renumerate.com";
+				return withSessionId(url, params.sessionId);
+			}
+
+			case "subscription": {
+				const url = isLocal
+					? "http://localhost:4321/subs"
+					: "https://subs.renumerate.com";
+				return withSessionId(url, params.sessionId);
+			}
+
 			case "event":
 				return isLocal
 					? "http://localhost:4321/event/"
