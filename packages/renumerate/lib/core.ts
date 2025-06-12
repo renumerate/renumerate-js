@@ -20,24 +20,30 @@ export interface EventData {
 
 export class Renumerate {
 	private config: RenumerateConfig;
-	private dialog: HTMLDialogElement | null = null;
+	private retentionDialog: HTMLDialogElement | null = null;
 	private retentionIframe: HTMLIFrameElement | null = null;
 	private subscriptionIframe: HTMLIFrameElement | null = null;
+	private styleSheet: HTMLStyleElement | null = null;
+	private windowListener: ((event: MessageEvent) => void) | null = null;
 
 	constructor(config: RenumerateConfig) {
 		this.config = config;
-		this.injectStylesheet();
-		this.addListener();
+
+		// In contexts where `window` is not defined (e.g., server-side rendering),
+		// we do not want to execute any code that relies on the DOM.
+		// This is a safeguard to prevent errors in environments like Next.js or Gatsby.
+		if (typeof window === "undefined") {
+			return;
+		}
+
+		this.initialize();
 	}
 
 	/**
-	 * Register an event with a name and optional data
-	 * @param eventName Name of the event to register
-	 * @param data Key-value pairs of event data
+	 * Update the configuration of the Renumerate instance
 	 */
-	registerEvent(eventName: string, data: EventData = {}): void {
-		if (this.config.debug)
-			console.info(`Registering event: ${eventName}`, data);
+	updateConfig(config: RenumerateConfig) {
+		this.config = config;
 	}
 
 	/**
@@ -49,10 +55,6 @@ export class Renumerate {
 		sessionId: string,
 		classes: string = "",
 	) {
-		// Ensure styles are loaded
-		if (!document.querySelector("style[data-renumerate-modal-styles]")) {
-			this.injectStylesheet();
-		}
 		// Validate sessionId
 		if (!this.isSessionType(sessionId, "retention")) {
 			throw new Error(
@@ -83,12 +85,7 @@ export class Renumerate {
 	 * Show retention view for a customer
 	 * @param sessionId Mandatory customer session identifier
 	 */
-	showRetentionView(sessionId: string): HTMLDialogElement {
-		// Ensure styles are loaded
-		if (!document.querySelector("style[data-renumerate-modal-styles]")) {
-			this.injectStylesheet();
-		}
-
+	showRetentionView(sessionId: string): HTMLDialogElement | null {
 		// Validate sessionId
 		if (
 			!this.isSessionType(sessionId, "retention") &&
@@ -99,19 +96,19 @@ export class Renumerate {
 			);
 		}
 
-		this.dialog = document.createElement("dialog");
-		this.dialog.className = "renumerate-dialog";
+		this.retentionDialog = document.createElement("dialog");
+		this.retentionDialog.className = "renumerate-dialog";
 
 		// Create close button
 		const closeButton = document.createElement("button");
 		closeButton.className = "renumerate-dialog-close";
 		closeButton.innerHTML = "&times;";
 		closeButton.setAttribute("aria-label", "Close");
-		this.dialog.appendChild(closeButton);
+		this.retentionDialog.appendChild(closeButton);
 
 		closeButton.addEventListener("click", () => {
 			// We can be reasonably sure that the dialog is not null here
-			this.dialog?.close();
+			this.retentionDialog?.close();
 		});
 
 		// Create the content
@@ -125,21 +122,21 @@ export class Renumerate {
 		});
 
 		content.appendChild(this.retentionIframe);
-		this.dialog.appendChild(content);
+		this.retentionDialog.appendChild(content);
 
 		// Move the close button to inside the content
 		content.prepend(closeButton);
 
-		document.body.appendChild(this.dialog);
-		this.dialog.showModal();
+		document.body.appendChild(this.retentionDialog);
+		this.retentionDialog.showModal();
 
 		// Teardown
-		this.dialog.addEventListener("close", () => {
+		this.retentionDialog.addEventListener("close", () => {
 			// We can be reasonably sure that the dialog is not null here
-			this.dialog?.remove();
+			this.retentionDialog?.remove();
 		});
 
-		return this.dialog;
+		return this.retentionDialog;
 	}
 
 	/**
@@ -152,11 +149,6 @@ export class Renumerate {
 		sessionId: string,
 		classes: string = "",
 	): HTMLElement {
-		// Ensure styles are loaded
-		if (!document.querySelector("style[data-renumerate-modal-styles]")) {
-			this.injectStylesheet();
-		}
-
 		// Validate sessionId
 		if (!this.isSessionType(sessionId, "subscription")) {
 			throw new Error(
@@ -198,6 +190,54 @@ export class Renumerate {
 		});
 	}
 
+	/**
+	 * Set up the Renumerate instance
+	 */
+	initialize() {
+		if (this.config.debug) {
+			console.info("Renumerate initialized with config:", this.config);
+		}
+
+		this.injectStylesheet();
+		this.addListener();
+	}
+
+	/**
+	 * Unmount renumerate components and clean up resources
+	 */
+	cleanup() {
+		if (this.config.debug) {
+			console.info("Renumerate cleaned up with config:", this.config);
+		}
+
+		// Clean up dialog and iframes
+		if (this.retentionDialog) {
+			this.retentionDialog.remove();
+			this.retentionDialog = null;
+		}
+
+		if (this.retentionIframe) {
+			this.retentionIframe.remove();
+			this.retentionIframe = null;
+		}
+
+		if (this.subscriptionIframe) {
+			this.subscriptionIframe.remove();
+			this.subscriptionIframe = null;
+		}
+
+		// Clean up styles
+		if (this.styleSheet) {
+			this.styleSheet.remove();
+			this.styleSheet = null;
+		}
+
+		if (this.windowListener) {
+			window.removeEventListener("message", this.windowListener);
+			this.windowListener = null;
+		}
+	}
+
 	/* Private functions */
 
 	/**
@@ -228,16 +268,19 @@ export class Renumerate {
 	 * Private: Inject the stylesheet into the document head
 	 */
 	private injectStylesheet() {
-		if (typeof document === "undefined") {
-			// Exit early if `document` is not available (e.g., during SSR)
+		const existingStyleSheet = document.querySelector(
+			"style[data-renumerate-dialog-styles]",
+		);
+		if (existingStyleSheet) {
+			this.styleSheet = existingStyleSheet as HTMLStyleElement;
 			return;
 		}
 
-		const styleSheet = document.createElement("style");
-		styleSheet.type = "text/css";
-		styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
+		this.styleSheet = document.createElement("style");
+		this.styleSheet.type = "text/css";
+		this.styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
 
-		styleSheet.innerHTML = `
+		this.styleSheet.innerHTML = `
 			.renumerate-dialog {
 				position: fixed;
 				top: 50%;
@@ -382,14 +425,22 @@ export class Renumerate {
           border-color: #d4d4d8;
       }
     `;
-		document.head.appendChild(styleSheet);
+		document.head.appendChild(this.styleSheet);
 	}
 
 	/**
 	 * Private: Add a listener for messages from the iframe
 	 */
 	private addListener() {
-		window.addEventListener("message", (event) => {
+		if (this.config.debug) {
+			console.info("Adding message listener for Renumerate");
+		}
+
+		this.windowListener = (event) => {
+			if (this.config.debug) {
+				console.info("Received message:", event.data);
+			}
+
 			const isLocal = this.getIsLocal();
 			const allowedOrigins = isLocal
 				? ["http://localhost:3000", "http://localhost:4321"]
@@ -409,6 +460,7 @@ export class Renumerate {
 					this.showRetentionView(data.sessionId);
 					return;
 				}
+
 				case "resize": {
 					if (
 						this.retentionIframe &&
@@ -425,7 +477,9 @@ export class Renumerate {
 					console.warn(`Unknown message type: ${type}`);
 				}
 			}
-		});
+		};
+
+		window.addEventListener("message", this.windowListener);
 	}
 
 	/**

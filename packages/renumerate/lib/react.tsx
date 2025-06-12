@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Renumerate, type RenumerateConfig } from "./core";
 
 interface RenumerateContextValue {
@@ -29,7 +29,25 @@ export function RenumerateProvider({
 	config: RenumerateConfig;
 	children: React.ReactNode;
 }) {
-	const renumerate = new Renumerate(config);
+	// Wrap in useState for highest semantic guarantee of a single instance
+	// This ensures that the Renumerate instance is created only once!
+	const [renumerate] = useState(() => new Renumerate(config));
+
+	useEffect(() => {
+		renumerate.updateConfig(config);
+	}, [config, renumerate]);
+
+	// Initialize the Renumerate instance when the component mounts
+	// and clean up when it unmounts
+	useEffect(() => {
+		renumerate.cleanup(); // Cleanup previous instance if any
+		renumerate.initialize(); // Re-initialize the Renumerate instance
+
+		return () => {
+			// Cleanup on unmount
+			renumerate.cleanup();
+		};
+	}, [renumerate]);
 
 	return (
 		<RenumerateContext.Provider value={{ instance: renumerate }}>
