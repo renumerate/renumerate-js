@@ -24,12 +24,14 @@ function App() {
 						/>
 					</div>
 
-					<div className="flex flex-wrap gap-4 mt-4">
-						<div className="flex flex-col gap-2 items-start">
-							<h3 className="font-semibold">Default CancelButton</h3>
-							<CancelButton sessionId={retentionSessionId} />
+					{retentionSessionId && (
+						<div className="flex flex-wrap gap-4 mt-4">
+							<div className="flex flex-col gap-2 items-start">
+								<h3 className="font-semibold">Default CancelButton</h3>
+								<CancelButton sessionId={retentionSessionId} />
+							</div>
 						</div>
-					</div>
+					)}
 				</div>
 
 				{/* Subscription Section */}
@@ -45,12 +47,14 @@ function App() {
 						/>
 					</div>
 
-					<div className="mt-4">
-						<h3 className="font-semibold mb-2">SubscriptionHub</h3>
-						<div>
-							<SubscriptionHub sessionId={subscriptionSessionId} />
+					{subscriptionSessionId && (
+						<div className="mt-4">
+							<h3 className="font-semibold mb-2">SubscriptionHub</h3>
+							<div>
+								<SubscriptionHub sessionId={subscriptionSessionId} />
+							</div>
 						</div>
-					</div>
+					)}
 				</div>
 			</div>
 		</RenumerateProvider>
