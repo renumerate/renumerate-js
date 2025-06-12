@@ -35,10 +35,15 @@ Ensure the following:
 
 This process securely creates a session ID for the customer cancellation flow.
 
+**Request Body Parameters:**
+
+When generating a retention session, you must include either the `customer_id` or `customer_email` (or both). Below is a table of all available parameters:
+
 | key                          | type                        | notes                                   |
 | ---------------------------- | --------------------------- | --------------------------------------- |
 | cancellation                 | object                      |                                         |
-| cancellation.customer_id     | string                      | Your stripe customerId                  |
+| cancellation.customer_id     | string \| undefined         | Your stripe customerId                  |
+| cancellation.customer_email  | string \| undefined         | The customer's email address in stripe  |
 | cancellation.subscription_id | string \| undefined         | The specific subscription id (optional) |
 | cancellation.subscriberData  | { string: any } \ undefined | Object of subscriber data (optional)    |
 
@@ -87,10 +92,16 @@ Ensure the following:
 
 This process securely creates a session ID for the customer cancellation flow.
 
+
+**Request Body Parameters:**
+
+When generating a SubscriptionHub session, you must include either the `customer_id` or `customer_email` (or both). Below is a table of all available parameters:
+
 | key                          | type                | notes                                   |                                      |
 | ---------------------------- | ------------------- | --------------------------------------- | ------------------------------------ |
 | subscription                 | object              |                                         |                                      |
-| subscription.customer_id     | string              | Your stripe customerId                  |                                      |
+| subscription.customer_id     | string \| undefined | Your stripe customerId                  |                                      |
+| cancellation.customer_email  | string \| undefined | The customer's email address in stripe  |
 | subscription.subscription_id | string \| undefined | The specific subscription id (optional) |                                      |
 
 Here's an example Node.js flow to obtain customer's session id:
