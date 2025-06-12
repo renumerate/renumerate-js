@@ -37,7 +37,12 @@ export function RenumerateProvider({
 		renumerate.updateConfig(config);
 	}, [config, renumerate]);
 
+	// Initialize the Renumerate instance when the component mounts
+	// and clean up when it unmounts
 	useEffect(() => {
+		renumerate.cleanup(); // Cleanup previous instance if any
+		renumerate.initialize(); // Re-initialize the Renumerate instance
+
 		return () => {
 			// Cleanup on unmount
 			renumerate.cleanup();

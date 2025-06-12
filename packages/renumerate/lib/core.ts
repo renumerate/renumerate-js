@@ -36,8 +36,7 @@ export class Renumerate {
 			return;
 		}
 
-		this.injectStylesheet();
-		this.addListener();
+		this.initialize();
 	}
 
 	/**
@@ -45,16 +44,6 @@ export class Renumerate {
 	 */
 	updateConfig(config: RenumerateConfig) {
 		this.config = config;
-	}
-
-	/**
-	 * Register an event with a name and optional data
-	 * @param eventName Name of the event to register
-	 * @param data Key-value pairs of event data
-	 */
-	registerEvent(eventName: string, data: EventData = {}): void {
-		if (this.config.debug)
-			console.info(`Registering event: ${eventName}`, data);
 	}
 
 	/**
@@ -202,9 +191,25 @@ export class Renumerate {
 	}
 
 	/**
+	 * Set up the Renumerate instance
+	 */
+	initialize() {
+		if (this.config.debug) {
+			console.info("Renumerate initialized with config:", this.config);
+		}
+
+		this.injectStylesheet();
+		this.addListener();
+	}
+
+	/**
 	 * Unmount renumerate components and clean up resources
 	 */
 	cleanup() {
+		if (this.config.debug) {
+			console.info("Renumerate cleaned up with config:", this.config);
+		}
+
 		// Clean up dialog and iframes
 		if (this.retentionDialog) {
 			this.retentionDialog.remove();
@@ -427,7 +432,15 @@ export class Renumerate {
 	 * Private: Add a listener for messages from the iframe
 	 */
 	private addListener() {
+		if (this.config.debug) {
+			console.info("Adding message listener for Renumerate");
+		}
+
 		this.windowListener = (event) => {
+			if (this.config.debug) {
+				console.info("Received message:", event.data);
+			}
+
 			const isLocal = this.getIsLocal();
 			const allowedOrigins = isLocal
 				? ["http://localhost:3000", "http://localhost:4321"]
@@ -447,6 +460,7 @@ export class Renumerate {
 					this.showRetentionView(data.sessionId);
 					return;
 				}
+
 				case "resize": {
 					if (
 						this.retentionIframe &&

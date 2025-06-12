@@ -4,16 +4,16 @@ export declare interface EventData {
 
 export declare class Renumerate {
     private config;
-    private dialog;
+    private retentionDialog;
     private retentionIframe;
     private subscriptionIframe;
+    private styleSheet;
+    private windowListener;
     constructor(config: RenumerateConfig);
     /**
-     * Register an event with a name and optional data
-     * @param eventName Name of the event to register
-     * @param data Key-value pairs of event data
+     * Update the configuration of the Renumerate instance
      */
-    registerEvent(eventName: string, data?: EventData): void;
+    updateConfig(config: RenumerateConfig): void;
     /**
      * Mount a cancel button for a subscriber
      * @param sessionId Mandatory customer session identifier
@@ -35,6 +35,14 @@ export declare class Renumerate {
      */
     getSubscriptionHubUrl(sessionId: string): string;
     /**
+     * Set up the Renumerate instance
+     */
+    initialize(): void;
+    /**
+     * Unmount renumerate components and clean up resources
+     */
+    cleanup(): void;
+    /**
      * Private: Check if the sessionId is of a specific type
      * @param sessionId The session ID to check
      * @param type The type to check against ("retention" or "subscription")
@@ -54,22 +62,12 @@ export declare class Renumerate {
      * Private: Get the target URL
      * @param type The type of session ("retention" or "subscription")
      */
-    buildUrl(params: UrlBuildParams): string;
+    private buildUrl;
 }
 
 export declare interface RenumerateConfig {
     publicKey: string;
     debug?: boolean;
 }
-
-declare type UrlBuildParams = {
-    target: "retention";
-    sessionId: string;
-} | {
-    target: "subscription";
-    sessionId: string;
-} | {
-    target: "event";
-};
 
 export { }
