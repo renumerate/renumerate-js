@@ -1,7 +1,7 @@
 {
 	"name": "@renumerate/js",
 	"private": false,
-	"version": "0.7.0-beta.5",
+	"version": "0.7.0-beta.6",
 	"type": "module",
 	"main": "./dist/renumerate.cjs.js",
 	"module": "./dist/renumerate.es.js",

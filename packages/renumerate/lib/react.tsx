@@ -31,7 +31,7 @@ export function RenumerateProvider({
 }) {
 	// Wrap in useState for highest semantic guarantee of a single instance
 	// This ensures that the Renumerate instance is created only once!
-	const [renumerate] = useState(() => new Renumerate(config));
+	const [renumerate] = useState(() => Renumerate.getInstance(config));
 
 	useEffect(() => {
 		renumerate.updateConfig(config);
@@ -111,14 +111,11 @@ export function SubscriptionHub({ sessionId, className }: UseRenumerateParams) {
 	}
 
 	return (
-		<div
-			className={className || "renumerate-subscription-hub"}
-			style={{ height: "100%", width: "100%", minHeight: "220px" }}
-		>
+		<div className={className || "renumerate-subscription-hub"}>
 			<iframe
+				className="renumerate-subscription-hub-iframe"
 				title="SubscriptionHub"
 				src={context.instance.getSubscriptionHubUrl(sessionId)}
-				style={{ height: "100%", width: "100%", minHeight: "220px" }}
 			/>
 		</div>
 	);

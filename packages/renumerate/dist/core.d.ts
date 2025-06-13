@@ -11,6 +11,12 @@ export declare class Renumerate {
     private windowListener;
     constructor(config: RenumerateConfig);
     /**
+     * Get or create a Renumerate instance
+     * @param config Configuration for the Renumerate instance
+     * @returns Renumerate instance
+     */
+    static getInstance(config: RenumerateConfig): Renumerate;
+    /**
      * Update the configuration of the Renumerate instance
      */
     updateConfig(config: RenumerateConfig): void;

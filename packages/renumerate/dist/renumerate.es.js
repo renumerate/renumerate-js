@@ -1,7 +1,7 @@
-var a = Object.defineProperty;
-var l = (s, e, t) => e in s ? a(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
-var r = (s, e, t) => l(s, typeof e != "symbol" ? e + "" : e, t);
-class h {
+var l = Object.defineProperty;
+var c = (s, e, t) => e in s ? l(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
+var r = (s, e, t) => c(s, typeof e != "symbol" ? e + "" : e, t);
+class a {
   constructor(e) {
     r(this, "config");
     r(this, "retentionDialog", null);
@@ -10,6 +10,21 @@ class h {
     r(this, "styleSheet", null);
     r(this, "windowListener", null);
     this.config = e, !(typeof window > "u") && this.initialize();
+  }
+  /**
+   * Get or create a Renumerate instance
+   * @param config Configuration for the Renumerate instance
+   * @returns Renumerate instance
+   */
+  static getInstance(e) {
+    if (typeof window > "u")
+      return new a(e);
+    if (window.RENUMERATE_INSTANCE) {
+      const n = window.RENUMERATE_INSTANCE;
+      return n.updateConfig(e), n;
+    }
+    const t = new a(e);
+    return window.RENUMERATE_INSTANCE = t, t;
   }
   /**
    * Update the configuration of the Renumerate instance
@@ -282,7 +297,7 @@ class h {
    * Private: Add a listener for messages from the iframe
    */
   addListener() {
-    this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
+    this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener && window.removeEventListener("message", this.windowListener), this.windowListener = (e) => {
       if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
@@ -324,5 +339,5 @@ class h {
   }
 }
 export {
-  h as Renumerate
+  a as Renumerate
 };
