@@ -89,7 +89,7 @@ class a {
     const o = document.getElementById(e);
     if (!o)
       throw new Error(`Element with id ${e} not found`);
-    return o.appendChild(i), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.width = "100%", this.subscriptionIframe.height = "300px", i.appendChild(this.subscriptionIframe), i;
+    return o.appendChild(i), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", i.appendChild(this.subscriptionIframe), i;
   }
   /**
    * Get subscription hub url
@@ -150,9 +150,7 @@ class a {
     this.styleSheet = document.createElement("style"), this.styleSheet.type = "text/css", this.styleSheet.setAttribute("data-renumerate-dialog-styles", "true"), this.styleSheet.innerHTML = `
 			.renumerate-dialog {
 				position: fixed;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
+				margin: 0 auto;
 				width: 800px;
 				max-width: 90%;
 				height: 100%;
@@ -297,7 +295,7 @@ class a {
    * Private: Add a listener for messages from the iframe
    */
   addListener() {
-    this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener && window.removeEventListener("message", this.windowListener), this.windowListener = (e) => {
+    this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
       if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
