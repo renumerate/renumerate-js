@@ -191,8 +191,8 @@ export class Renumerate {
 
 		this.subscriptionIframe = document.createElement("iframe");
 		this.subscriptionIframe.src = this.getSubscriptionHubUrl(sessionId);
-		this.subscriptionIframe.width = "100%";
-		this.subscriptionIframe.height = "300px";
+		this.subscriptionIframe.className = "renumerate-subscription-hub-iframe";
+		this.subscriptionIframe.title = "SubscriptionHub";
 
 		container.appendChild(this.subscriptionIframe);
 
@@ -307,9 +307,7 @@ export class Renumerate {
 		this.styleSheet.innerHTML = `
 			.renumerate-dialog {
 				position: fixed;
-				top: 50%;
-				left: 50%;
-				transform: translate(-50%, -50%);
+				margin: 0 auto;
 				width: 800px;
 				max-width: 90%;
 				height: 100%;
