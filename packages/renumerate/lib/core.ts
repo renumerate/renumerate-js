@@ -1,6 +1,7 @@
 // Private interface
 interface Window {
 	RENUMERATE_LOCAL?: boolean;
+	RENUMERATE_INSTANCE?: Renumerate;
 }
 
 type UrlBuildParams =
@@ -37,6 +38,29 @@ export class Renumerate {
 		}
 
 		this.initialize();
+	}
+
+	/**
+	 * Get or create a Renumerate instance
+	 * @param config Configuration for the Renumerate instance
+	 * @returns Renumerate instance
+	 */
+	public static getInstance(config: RenumerateConfig): Renumerate {
+		if (typeof window === "undefined") {
+			return new Renumerate(config);
+		}
+
+		// If instance exists, update its config and return it
+		if ((window as Window).RENUMERATE_INSTANCE) {
+			const instance = (window as Window).RENUMERATE_INSTANCE as Renumerate;
+			instance.updateConfig(config);
+			return instance;
+		}
+
+		// Otherwise create and store a new instance
+		const instance = new Renumerate(config);
+		(window as Window).RENUMERATE_INSTANCE = instance;
+		return instance;
 	}
 
 	/**
