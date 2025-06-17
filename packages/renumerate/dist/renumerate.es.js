@@ -69,7 +69,7 @@ class a {
     return n.className = "renumerate-dialog-content", this.retentionIframe = document.createElement("iframe"), this.retentionIframe.src = this.buildUrl({
       target: "retention",
       sessionId: e
-    }), n.appendChild(this.retentionIframe), this.retentionDialog.appendChild(n), n.prepend(t), document.body.appendChild(this.retentionDialog), this.retentionDialog.showModal(), this.retentionDialog.addEventListener("close", () => {
+    }), n.appendChild(this.retentionIframe), this.retentionDialog.appendChild(n), n.prepend(t), document.body.appendChild(this.retentionDialog), this.retentionDialog.showModal(), t.blur(), this.retentionDialog.addEventListener("close", () => {
       var i;
       (i = this.retentionDialog) == null || i.remove();
     }), this.retentionDialog;

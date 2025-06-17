@@ -154,6 +154,9 @@ export class Renumerate {
 		document.body.appendChild(this.retentionDialog);
 		this.retentionDialog.showModal();
 
+		// Blur the close button so it is not focused by default
+		closeButton.blur();
+
 		// Teardown
 		this.retentionDialog.addEventListener("close", () => {
 			// We can be reasonably sure that the dialog is not null here
