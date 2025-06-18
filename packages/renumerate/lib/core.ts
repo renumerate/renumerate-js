@@ -174,7 +174,8 @@ export class Renumerate {
 	mountSubscriptionHub(
 		elementId: string,
 		sessionId: string,
-		classes: string = "",
+		wrapperClasses: string = "",
+		iframeClasses: string = "",
 	): HTMLElement {
 		// Validate sessionId
 		if (!this.isSessionType(sessionId, "subscription")) {
@@ -184,7 +185,7 @@ export class Renumerate {
 		}
 
 		const container = document.createElement("div");
-		container.className = classes || "renumerate-subscription-hub";
+		container.className = wrapperClasses || "renumerate-subscription-hub";
 
 		const parent = document.getElementById(elementId);
 		if (!parent) {
@@ -194,7 +195,8 @@ export class Renumerate {
 
 		this.subscriptionIframe = document.createElement("iframe");
 		this.subscriptionIframe.src = this.getSubscriptionHubUrl(sessionId);
-		this.subscriptionIframe.className = "renumerate-subscription-hub-iframe";
+		this.subscriptionIframe.className =
+			iframeClasses || "renumerate-subscription-hub-iframe";
 		this.subscriptionIframe.title = "SubscriptionHub";
 
 		container.appendChild(this.subscriptionIframe);
@@ -308,6 +310,16 @@ export class Renumerate {
 		this.styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
 
 		this.styleSheet.innerHTML = `
+			.renumerate-subscription-hub {
+				height: 400px;
+				width: 100%;
+			}
+
+			.renumerate-subscription-hub-iframe {
+				height: 400px;
+				width: 100%;
+			}
+
 			.renumerate-dialog {
 				position: fixed;
 				margin: 0 auto;

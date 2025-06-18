@@ -1,6 +1,6 @@
 import { jsx as u } from "react/jsx-runtime";
-import r, { useState as a, useEffect as o } from "react";
-import { Renumerate as c } from "../renumerate.es.js";
+import r, { useState as c, useEffect as a } from "react";
+import { Renumerate as s } from "../renumerate.es.js";
 const i = r.createContext(
   null
 );
@@ -8,10 +8,10 @@ function p({
   config: t,
   children: n
 }) {
-  const [e] = a(() => c.getInstance(t));
-  return o(() => {
+  const [e] = c(() => s.getInstance(t));
+  return a(() => {
     e.updateConfig(t);
-  }, [t, e]), o(() => (e.cleanup(), e.initialize(), () => {
+  }, [t, e]), a(() => (e.cleanup(), e.initialize(), () => {
     e.cleanup();
   }), [e]), /* @__PURE__ */ u(i.Provider, { value: { instance: e }, children: n });
 }
@@ -27,7 +27,10 @@ function h({
     }, [t, n.instance])
   };
 }
-function d({ sessionId: t, className: n }) {
+function d({
+  sessionId: t,
+  className: n
+}) {
   const e = r.useContext(i);
   if (!e)
     throw new Error("useRenumerate must be used within a RenumerateProvider");
@@ -43,16 +46,20 @@ function d({ sessionId: t, className: n }) {
     }
   );
 }
-function f({ sessionId: t, className: n }) {
-  const e = r.useContext(i);
-  if (!e)
+function f({
+  sessionId: t,
+  wrapperClassName: n,
+  iframeClassName: e
+}) {
+  const o = r.useContext(i);
+  if (!o)
     throw new Error("useRenumerate must be used within a RenumerateProvider");
   return /* @__PURE__ */ u("div", { className: n || "renumerate-subscription-hub", children: /* @__PURE__ */ u(
     "iframe",
     {
-      className: "renumerate-subscription-hub-iframe",
+      className: e || "renumerate-subscription-hub-iframe",
       title: "SubscriptionHub",
-      src: e.instance.getSubscriptionHubUrl(t)
+      src: o.instance.getSubscriptionHubUrl(t)
     }
   ) });
 }

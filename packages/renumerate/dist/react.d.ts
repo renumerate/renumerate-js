@@ -4,7 +4,9 @@ import { JSX as JSX_2 } from 'react/jsx-runtime';
 /**
  * Cancel Button Component
  */
-export declare function CancelButton({ sessionId, className }: UseRenumerateParams): JSX_2.Element;
+export declare function CancelButton({ sessionId, className, }: UseRenumerateParams & {
+    className?: string;
+}): JSX_2.Element;
 
 declare interface RenumerateConfig {
     publicKey: string;
@@ -22,7 +24,10 @@ export declare function RenumerateProvider({ config, children, }: {
 /**
  * SubscriptionHub Component
  */
-export declare function SubscriptionHub({ sessionId, className }: UseRenumerateParams): JSX_2.Element;
+export declare function SubscriptionHub({ sessionId, wrapperClassName, iframeClassName, }: UseRenumerateParams & {
+    wrapperClassName?: string;
+    iframeClassName?: string;
+}): JSX_2.Element;
 
 /**
  * Hook to use Renumerate instance in React components
@@ -31,7 +36,6 @@ export declare function useRenumerate({ sessionId, }: UseRenumerateParams): UseR
 
 declare interface UseRenumerateParams {
     sessionId: string;
-    className?: string;
 }
 
 declare interface UseRenumerateReturn {

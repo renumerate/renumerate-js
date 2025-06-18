@@ -53,7 +53,7 @@ function App() {
 						<h3 className="font-semibold mb-2">SubscriptionHub</h3>
 						<div>
 							<RenumerateProvider config={{ publicKey: "test", debug: true }}>
-								<SubscriptionHub sessionId={subscriptionSessionId} />
+								<SubscriptionHub wrapperClassName="h-[320px] w-full" iframeClassName="h-[320px] w-full" sessionId={subscriptionSessionId} />
 							</RenumerateProvider>
 						</div>
 					</div>

@@ -7,7 +7,6 @@ interface RenumerateContextValue {
 
 interface UseRenumerateParams {
 	sessionId: string;
-	className?: string;
 }
 
 interface UseRenumerateReturn {
@@ -79,7 +78,10 @@ export function useRenumerate({
 /**
  * Cancel Button Component
  */
-export function CancelButton({ sessionId, className }: UseRenumerateParams) {
+export function CancelButton({
+	sessionId,
+	className,
+}: UseRenumerateParams & { className?: string }) {
 	const context = React.useContext(RenumerateContext);
 
 	if (!context) {
@@ -103,7 +105,14 @@ export function CancelButton({ sessionId, className }: UseRenumerateParams) {
 /**
  * SubscriptionHub Component
  */
-export function SubscriptionHub({ sessionId, className }: UseRenumerateParams) {
+export function SubscriptionHub({
+	sessionId,
+	wrapperClassName,
+	iframeClassName,
+}: UseRenumerateParams & {
+	wrapperClassName?: string;
+	iframeClassName?: string;
+}) {
 	const context = React.useContext(RenumerateContext);
 
 	if (!context) {
@@ -111,9 +120,9 @@ export function SubscriptionHub({ sessionId, className }: UseRenumerateParams) {
 	}
 
 	return (
-		<div className={className || "renumerate-subscription-hub"}>
+		<div className={wrapperClassName || "renumerate-subscription-hub"}>
 			<iframe
-				className="renumerate-subscription-hub-iframe"
+				className={iframeClassName || "renumerate-subscription-hub-iframe"}
 				title="SubscriptionHub"
 				src={context.instance.getSubscriptionHubUrl(sessionId)}
 			/>

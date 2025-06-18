@@ -1,14 +1,14 @@
-var l = Object.defineProperty;
-var c = (s, e, t) => e in s ? l(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
-var r = (s, e, t) => c(s, typeof e != "symbol" ? e + "" : e, t);
+var c = Object.defineProperty;
+var h = (s, e, t) => e in s ? c(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
+var o = (s, e, t) => h(s, typeof e != "symbol" ? e + "" : e, t);
 class a {
   constructor(e) {
-    r(this, "config");
-    r(this, "retentionDialog", null);
-    r(this, "retentionIframe", null);
-    r(this, "subscriptionIframe", null);
-    r(this, "styleSheet", null);
-    r(this, "windowListener", null);
+    o(this, "config");
+    o(this, "retentionDialog", null);
+    o(this, "retentionIframe", null);
+    o(this, "subscriptionIframe", null);
+    o(this, "styleSheet", null);
+    o(this, "windowListener", null);
     this.config = e, !(typeof window > "u") && this.initialize();
   }
   /**
@@ -45,10 +45,10 @@ class a {
     i.textContent = "Cancel Subscription", i.addEventListener("click", () => {
       this.showRetentionView(t);
     }), n ? i.className = n : i.className = "renumerate-cancel-btn";
-    const o = document.getElementById(e);
-    if (!o)
+    const r = document.getElementById(e);
+    if (!r)
       throw new Error(`Element with id ${e} not found`);
-    o.appendChild(i);
+    r.appendChild(i);
   }
   /**
    * Show retention view for a customer
@@ -79,17 +79,17 @@ class a {
    * @param sessionId
    * @returns
    */
-  mountSubscriptionHub(e, t, n = "") {
+  mountSubscriptionHub(e, t, n = "", i = "") {
     if (!this.isSessionType(t, "subscription"))
       throw new Error(
         `Invalid sessionId: ${t}. Expected a subscription session ID.`
       );
-    const i = document.createElement("div");
-    i.className = n || "renumerate-subscription-hub";
-    const o = document.getElementById(e);
-    if (!o)
+    const r = document.createElement("div");
+    r.className = n || "renumerate-subscription-hub";
+    const l = document.getElementById(e);
+    if (!l)
       throw new Error(`Element with id ${e} not found`);
-    return o.appendChild(i), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", i.appendChild(this.subscriptionIframe), i;
+    return l.appendChild(r), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = i || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", r.appendChild(this.subscriptionIframe), r;
   }
   /**
    * Get subscription hub url
@@ -148,6 +148,16 @@ class a {
       return;
     }
     this.styleSheet = document.createElement("style"), this.styleSheet.type = "text/css", this.styleSheet.setAttribute("data-renumerate-dialog-styles", "true"), this.styleSheet.innerHTML = `
+			.renumerate-subscription-hub {
+				height: 400px;
+				width: 100%;
+			}
+
+			.renumerate-subscription-hub-iframe {
+				height: 400px;
+				width: 100%;
+			}
+
 			.renumerate-dialog {
 				position: fixed;
 				margin: 0 auto;
@@ -303,14 +313,14 @@ class a {
         );
         return;
       }
-      const { type: i, data: o } = e.data;
+      const { type: i, data: r } = e.data;
       switch (i) {
         case "cancel-subscription": {
-          this.showRetentionView(o.sessionId);
+          this.showRetentionView(r.sessionId);
           return;
         }
         case "resize": {
-          this.retentionIframe && o.height && typeof o.height == "number" && o.height > 0 && (this.retentionIframe.style.height = `${o.height}px`);
+          this.retentionIframe && r.height && typeof r.height == "number" && r.height > 0 && (this.retentionIframe.style.height = `${r.height}px`);
           return;
         }
         default:
@@ -323,7 +333,7 @@ class a {
    * @param type The type of session ("retention" or "subscription")
    */
   buildUrl(e) {
-    const t = this.getIsLocal(), n = (i, o) => `${i}?session_id=${o}`;
+    const t = this.getIsLocal(), n = (i, r) => `${i}?session_id=${r}`;
     switch (e.target) {
       case "retention":
         return n(t ? "http://localhost:4321/retention" : "https://retention.renumerate.com", e.sessionId);

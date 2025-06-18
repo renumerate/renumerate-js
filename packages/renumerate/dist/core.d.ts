@@ -35,7 +35,7 @@ export declare class Renumerate {
      * @param sessionId
      * @returns
      */
-    mountSubscriptionHub(elementId: string, sessionId: string, classes?: string): HTMLElement;
+    mountSubscriptionHub(elementId: string, sessionId: string, wrapperClasses?: string, iframeClasses?: string): HTMLElement;
     /**
      * Get subscription hub url
      */
