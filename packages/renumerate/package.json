@@ -20,7 +20,9 @@
 	},
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc && vite build",
+		"build": "npm run build:base && npm run build:umd",
+		"build:base": "tsc && vite build --config vite.base.config.js",
+		"build:umd": "tsc && vite build --config vite.umd.config.js",
 		"preview": "vite preview",
 		"lint": "biome check",
 		"prepare": "husky"
