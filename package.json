@@ -3,13 +3,10 @@
   "private": false,
   "license": "MIT",
   "workspaces": [
-    "packages/docs",
     "packages/renumerate"
   ],
   "scripts": {
-    "build:docs": "npm run build --workspace=packages/docs",
     "build:renumerate": "npm run build --workspace=packages/renumerate",
-    "dev:docs": "npm run dev --workspace=packages/docs",
     "dev:renumerate": "npm run dev --workspace=packages/renumerate",
     "lint:renumerate": "npm run lint --workspace=packages/renumerate",
     "preview:renumerate": "npm run preview --workspace=packages/renumerate",
