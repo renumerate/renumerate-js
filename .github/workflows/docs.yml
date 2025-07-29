@@ -5,7 +5,8 @@ concurrency:
 on:
   push:
     branches:
-      - main 
+      - main
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -27,11 +28,11 @@ jobs:
           base: 'main'
           filters: |
             docs:
-              - 'docs/**'
+              - 'packages/docs/**'
 
   build:
     needs: changes
-    if: ${{ needs.changes.outputs.docs == 'true'}}
+    if: ${{ needs.changes.outputs.docs == 'true' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       # Checkout the repository
@@ -61,7 +62,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/dist
+          path: packages/docs/dist
 
   deploy:
     needs: build
