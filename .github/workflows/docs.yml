@@ -1,0 +1,75 @@
+name: Docs Publish
+concurrency:
+  group: docs
+  cancel-in-progress: true
+on:
+  push:
+    branches:
+      - main 
+
+permissions:
+  contents: read
+  packages: write
+  actions: write
+  pages: write
+  id-token: write
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          base: 'main'
+          filters: |
+            docs:
+              - 'docs/**'
+
+  build:
+    needs: changes
+    if: ${{ needs.changes.outputs.docs == 'true'}}
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
+          cache: "npm"
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm install --workspace=docs
+
+      # Configure pages
+      - name: Setup Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      # Build the Astro site
+      - name: Build the docs site
+        run: npm run build --workspace=docs
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -50,7 +50,6 @@ When generating a retention session, you must include either the `customer_id` o
 | cancellation.customer_id     | string \| undefined         | Your stripe customerId                  |
 | cancellation.customer_email  | string \| undefined         | The customer's email address in stripe  |
 | cancellation.subscription_id | string \| undefined         | The specific subscription id (optional) |
-| cancellation.subscriberData  | { string: any } \ undefined | Object of subscriber data (optional)    |
 
 Here's an example Node.js flow to obtain customer's session id:
 
@@ -61,10 +60,6 @@ const requestBody = {
   cancellation: {
     customer_id: "cus_NffrFeUfNV2Hib", // Example stripe id
     subscription_id: "sub_1MowQVLkdIwHu7ixeRlqHVzs", // Your specific subscription
-    subscriberData: {
-      name: "John Doe",
-      email: "john.doe@example.com",
-    }, // Optional
   },
 };
 
