@@ -1,288 +1,51 @@
 ---
 title: Getting Started
-description: Get started with Renumerate-js
+description: Get started with Renumerate JS - AI-powered retention for subscription businesses
 ---
 
-# @renumerate/js
+Renumerate JS is a powerful JavaScript library that helps subscription businesses reduce churn through AI-powered retention workflows.
 
-Javascript browser library for [renumerate.com](https://renumerate.com)
+## Installation
 
-Exposes direct library class and vanilla javascript functions along with optional React hook and components for integrating Renumerates retention view workflow.
-
-## Compatibility
-
-React 17+
-
-## Install
-
-With npm:
+Install the Renumerate JS library using npm:
 
 ```bash
-npm install --save @renumerate/js
+npm install @renumerate/js
 ```
 
-## Documentation
+## What is Renumerate?
 
-### Generating SessionId's
+Renumerate provides two main solutions for subscription retention:
 
-#### Generating a retention session id
+### Subscription Hub
+The **all-in-one proactive retention solution** that gives customers offers before they even think about canceling. The Subscription Hub eliminates all the headaches of managing Stripe integrations and allows users to fully manage their subscription including:
 
-Retention sessions allow you to present a retention workflow when a customer goes to cancel their subscription. This sessionId can be passed into the showRetentionView or cancelButton functions.
+- View billing history and invoices
+- Update payment methods
+- Change subscription plans
+- Pause or cancel subscriptions (with retention offers)
+- Apply promo codes and discounts
 
-*Retention sessions begin with `ret_`*
+This is a complete customer portal that you can embed directly into your application.
 
-To generate a customer's session ID, make a POST request to `https://api.renumerate.com/v1/retention/session` from your application's backend.
+![Subscription Hub](../../../assets/subscription-hub.png)
 
-Ensure the following:
+### Retention Flow (Cancel Button)
+The **bite-sized quick integration** that pops up the cancellation flow when a user clicks cancel. This is perfect for adding to your existing subscription management portal - just replace your current cancel button with Renumerate's intelligent cancel button that presents retention offers before processing the cancellation.
 
-1. Include the `X-Brand-Key` header with your Brand's private key for authentication.
-2. Pass the customer's ID and any other required parameters in the request body as specified by the API documentation.
+<video width="100%" autoplay muted loop>
+  <source src="/cancel-button.mp4" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
 
-This process securely creates a session ID for the customer cancellation flow.
+## Prerequisites
 
-**Request Body Parameters:**
+Before getting started, you'll need:
 
-When generating a retention session, you must include either the `customer_id` or `customer_email` (or both). Below is a table of all available parameters:
+1. **A Renumerate account** - Book a demo directly at [cal.com/renumerate/demo](https://cal.com/renumerate/demo) or at [renumerate.com](https://renumerate.com)
+2. **Stripe integration** - Connect your Stripe account for subscription management
+3. **Brand private key** - For backend API authentication
 
-| key                          | type                        | notes                                   |
-| ---------------------------- | --------------------------- | --------------------------------------- |
-| cancellation                 | object                      |                                         |
-| cancellation.customer_id     | string \| undefined         | Your stripe customerId                  |
-| cancellation.customer_email  | string \| undefined         | The customer's email address in stripe  |
-| cancellation.subscription_id | string \| undefined         | The specific subscription id (optional) |
-
-Here's an example Node.js flow to obtain customer's session id:
-
-```typescript
-const privateKey = process.env.RENUMERATE_PRIVATE_KEY;
-
-const requestBody = {
-  cancellation: {
-    customer_id: "cus_NffrFeUfNV2Hib", // Example stripe id
-    subscription_id: "sub_1MowQVLkdIwHu7ixeRlqHVzs", // Your specific subscription
-  },
-};
-
-const response = await fetch("https://api.renumerate.com/v1/retention/session", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Brand-Key": privateKey,
-  },
-  body: JSON.stringify(requestBody),
-});
-
-const {
-  session: { id },
-} = await response.json();
-```
-
-#### Generating a SubscriptionHub session id
-
-Subscription sessions allow you to present the SubscriptionHub widget to your customers to easily manage and view their subscriptions.
-
-*Subscription sessions begin with `sub_`*
-
-To generate a customer's session ID, make a POST request to `https://api.renumerate.com/v1/subscription/session` from your application's backend.
-
-Ensure the following:
-
-1. Include the `X-Brand-Key` header with your Brand's private key for authentication.
-2. Pass the customer's ID and any other required parameters in the request body as specified by the API documentation.
-
-This process securely creates a session ID for the customer cancellation flow.
-
-
-**Request Body Parameters:**
-
-When generating a SubscriptionHub session, you must include either the `customer_id` or `customer_email` (or both). Below is a table of all available parameters:
-
-| key                          | type                | notes                                   |                                      |
-| ---------------------------- | ------------------- | --------------------------------------- | ------------------------------------ |
-| subscription                 | object              |                                         |                                      |
-| subscription.customer_id     | string \| undefined | Your stripe customerId                  |                                      |
-| subscription.customer_email  | string \| undefined | The customer's email address in stripe  |
-| subscription.subscription_id | string \| undefined | The specific subscription id (optional) |                                      |
-
-Here's an example Node.js flow to obtain customer's session id:
-
-```typescript
-const privateKey = process.env.RENUMERATE_PRIVATE_KEY;
-
-const requestBody = {
-  subscription: {
-    customer_id: "cus_NffrFeUfNV2Hib", // Example stripe id
-    subscription_id: "sub_1MowQVLkdIwHu7ixeRlqHVzs", // Your specific subscription
-  },
-};
-
-const response = await fetch("https://api.renumerate.com/v1/subscription/session", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "X-Brand-Key": privateKey,
-  },
-  body: JSON.stringify(requestBody),
-});
-
-const {
-  session: { id },
-} = await response.json();
-```
-
-### Javascript/Typescript
-
-For the fearless, for the free, for those who like to live life outside of a framework.
-
-```typescript
-import { Renumerate } from "@renumerate/js";
-
-const renumerate = new Renumerate({
-  publicKey: "test",
-});
-```
-
-##### Renumerate class arguments
-
-| key       | type    | notes                                          |
-| --------- | ------- | ---------------------------------------------- |
-| publicKey | string  | Get this from your brand settings page         |
-| debug     | boolean | Default: false, whether you want debug logging |
-
-
-#### Cancel Button
-
-The cancel button is the quickest way to get started with the Renumerate Retention Engine. The cancel button will render a button to the container and manage the entire retention workflow.
-
-```typescript
-renumerate.mountCancelButton("elementId", "sessionId", "classes");
-```
-
-##### mountCancelButton Arguments
-
-| key       | type                | notes                            |
-| --------- | ------------------- | -------------------------------- |
-| elementId | string              | The id for the container element |
-| sessionId | string              | Your customer's session id       |
-| classes   | string \| undefined | Button classes (optional)        |
-
-#### Show Retention View
-
-Show retention view gives you the control of where, when and how to invoke the Renumerate Cancellation Engine.
-
-```typescript
-renumerate.showRetentionView("sessionId");
-```
-
-##### showRetentionView Arguments
-
-| key       | type   | notes                      |
-| --------- | ------ | -------------------------- |
-| sessionId | string | Your customer's session id |
-
-#### SubscriptionHub
-
-The SubscriptionHub is the quickest way to get started with SubscriptionManagement. The SubscriptionHub will render a subscription management widget to the container and manage the entire subscription management and retention workflow.
-
-```typescript
-renumerate.mountSubscriptionHub("elementId", "sessionId", "classes");
-```
-
-##### mountSubscriptionHub Arguments
-
-| key       | type                | notes                                    |
-| --------- | ------------------- | ---------------------------------------- |
-| elementId | string              | The id for the container element         |
-| sessionId | string              | Your customer's subscription session id  |
-| classes   | string \| undefined | Button classes (optional)                |
-
-### React
-
-For those who `<React />` this one's for you. Here's how to get your retention view.
-
-Everything in the react library requires the components to be wrapped in a RenumerateProvider.
-
-```typescript
-import { RenumerateProvider } from "@renumerate/js/react";
-
-<RenumerateProvider
-  config={{
-    publicKey: "test",
-  }}
->{ retainYourCustomers }</RenumerateProvider>
-```
-
-##### RenumerateProvider config arguments
-
-| key       | type    | notes                                          |
-| --------- | ------- | ---------------------------------------------- |
-| publicKey | string  | Get this from your brand settings page         |
-| debug     | boolean | Default: false, whether you want debug logging |
-
-#### Cancel Button
-
-The easiest way to get started with the Renumerate Retention Engine.
-
-```typescript
-import { CancelButton } from "@renumerate/js/react";
-
-<CancelButton sessionId={customersSessionId} />
-```
-
-##### CancelButton Arguments
-
-| key       | type                | notes                      |
-| --------- | ------------------- | -------------------------- |
-| sessionId | string              | Your customer's session id |
-| className | string \| undefined | Optional className         |
-
-#### SubscriptionHub
-
-The easiest way to setup a subscription management widget.
-
-```typescript
-import { SubscriptionHub } from "@renumerate/js/react";
-
-<SubscriptionHub sessionId={customersSessionId} />
-```
-
-##### SubscriptionHub Arguments
-
-| key       | type                | notes                      |
-| --------- | ------------------- | -------------------------- |
-| sessionId | string              | Your customer's session id |
-| className | string \| undefined | Optional className         |
-
-#### useRenumerate hook
-
-If you're Peter Pan maybe stay away, otherwise the hook gives you full control over your renumerate retention workflow.
-
-```typescript
-import { useRenumerate } from "@renumerate/js/react";
-
-export function CancelWidget({
-  sessionId,
-}: {
-  sessionId: string;
-}) {
-  const { open } = useRenumerate({
-    sessionId,
-  });
-
-  return (
-    <button onClick={open} className="btn btn-outline btn-primary mx-2">
-      Cancel subscription
-    </button>
-  );
-}
-```
-
-##### useRenumerate Arguments
-
-| key       | type   | notes                      |
-| --------- | ------ | -------------------------- |
-| sessionId | string | Your customer's session id |
-
-### Typescript support
-
-If you like types we have types, all sorts of types. Those type definitions for @renumerate/js and @renumerate/js/react are built into the npm package. Type away :typingcat:
+:::tip[Setup Help]
+Need help with initial setup? Check our [How-To Guide](/guides/how-to/) for step-by-step instructions.
+:::
