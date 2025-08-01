@@ -18,12 +18,14 @@ export default defineConfig({
 			],
 			sidebar: [
 				{
-					label: "Guides",
-					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: "Get Started", slug: "guides/getting-started" },
-					],
-				},
+                    label: "Guides",
+                    items: [
+                        { label: "Get Started", slug: "guides/getting-started" },
+						{ label: "Subscription Hub", slug: "guides/subscription-hub" },
+                        { label: "Retention Flow", slug: "guides/retention-flow" },
+						{ label: "How-To Guide", slug: "guides/how-to" },
+                    ],
+                },
 				{
 					label: "Reference",
 					autogenerate: { directory: "reference" },
