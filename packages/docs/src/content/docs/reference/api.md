@@ -24,10 +24,10 @@ When generating a retention session, you must include either the `customer_id` o
 
 | key                          | type                        | notes                                   |
 | ---------------------------- | --------------------------- | --------------------------------------- |
-| cancellation                 | object                      |                                         |
-| cancellation.customer_id     | string \| undefined         | Your stripe customer ID                 |
-| cancellation.customer_email  | string \| undefined         | Customer email (alternative to customer_id) |
-| cancellation.subscription_id | string \| undefined         | The specific subscription id (optional) |
+| retention                 | object                      |                                         |
+| retention.customer_id     | string \| undefined         | Your stripe customer ID                 |
+| retention.customer_email  | string \| undefined         | Customer email (alternative to customer_id) |
+| retention.subscription_id | string \| undefined         | The specific subscription id (optional) |
 
 Here's an example Node.js flow to obtain customer's session id:
 
@@ -35,7 +35,7 @@ Here's an example Node.js flow to obtain customer's session id:
 const privateKey = process.env.RENUMERATE_PRIVATE_KEY;
 
 const requestBody = {
-  cancellation: {
+  retention: {
     customer_id: "cus_NffrFeUfNV2Hib", // Example stripe id
     // OR use customer_email instead:
     // customer_email: "john.doe@example.com",
@@ -112,8 +112,10 @@ const { id } = await response.json();
 {
   "id": "ret_gLDTK1oiejL-GsltN_9RMfdZGh4OyJPuaH1E-zKPCe4294_hcnG0J9fz3hK-L-0SwzvUnstB6MsKQlvgKtD6tyyN4SlFJUJ6GThmiv6YwlGN7NlIog=="
 }
+```
 
 **Subscription Session Response:**
+```json
 {
   "id": "sub__FZ1PXM7vi3xH6pU4JgMz82zKa1r1z0wCF-kXIYrkjFdZ4NqpwfQ0kg2c1gw5zV0bf_0hlxwvzuwOxm14meKax1oDBZkXnU3cUfanwsGZ3JkHW40wAWURaqRg16z"
 }
