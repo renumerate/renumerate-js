@@ -500,6 +500,13 @@ export class Renumerate {
 
 					return;
 				}
+
+				case "close-dialog": {
+					if (this.retentionDialog) {
+						this.retentionDialog.close();
+					}
+					return;
+				}
 				default: {
 					console.warn(`Unknown message type: ${type}`);
 				}

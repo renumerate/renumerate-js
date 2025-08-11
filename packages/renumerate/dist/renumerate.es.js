@@ -313,6 +313,10 @@ class a {
           this.retentionIframe && o.height && typeof o.height == "number" && o.height > 0 && (this.retentionIframe.style.height = `${o.height}px`);
           return;
         }
+        case "close-dialog": {
+          this.retentionDialog && this.retentionDialog.close();
+          return;
+        }
         default:
           console.warn(`Unknown message type: ${i}`);
       }
