@@ -105,9 +105,10 @@
 					}
 
 					.renumerate-dialog-close {
-						font-size: 32px;
+						font-size: 40px;
 						top: 20px;
 						right: 20px;
+						font-weight: 200;
 					}
 			}
 
