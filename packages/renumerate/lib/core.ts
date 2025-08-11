@@ -323,7 +323,7 @@ export class Renumerate {
 			.renumerate-dialog {
 				position: fixed;
 				margin: 0 auto;
-				width: 800px;
+				width: 412px;
 				max-width: 90%;
 				height: 100%;
 				display: flex;
@@ -369,14 +369,14 @@ export class Renumerate {
 				border-radius: 8px;
 				background-color: #fcfbf9;
 				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-				min-width: 653px;
+				min-width: 412px;
 			}
 
 			.renumerate-dialog-content iframe {
 				width: 100%;
 				height: 100%;
 				min-height: 160px;
-				min-width: 600px;
+				min-width: 412x;
 				border: none;
 				margin: 0;
 				padding: 0;
