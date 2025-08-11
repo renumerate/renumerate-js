@@ -1,14 +1,14 @@
 var c = Object.defineProperty;
-var h = (s, e, t) => e in s ? c(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
-var o = (s, e, t) => h(s, typeof e != "symbol" ? e + "" : e, t);
+var d = (s, e, t) => e in s ? c(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
+var r = (s, e, t) => d(s, typeof e != "symbol" ? e + "" : e, t);
 class a {
   constructor(e) {
-    o(this, "config");
-    o(this, "retentionDialog", null);
-    o(this, "retentionIframe", null);
-    o(this, "subscriptionIframe", null);
-    o(this, "styleSheet", null);
-    o(this, "windowListener", null);
+    r(this, "config");
+    r(this, "retentionDialog", null);
+    r(this, "retentionIframe", null);
+    r(this, "subscriptionIframe", null);
+    r(this, "styleSheet", null);
+    r(this, "windowListener", null);
     this.config = e, !(typeof window > "u") && this.initialize();
   }
   /**
@@ -45,10 +45,10 @@ class a {
     i.textContent = "Cancel Subscription", i.addEventListener("click", () => {
       this.showRetentionView(t);
     }), n ? i.className = n : i.className = "renumerate-cancel-btn";
-    const r = document.getElementById(e);
-    if (!r)
+    const o = document.getElementById(e);
+    if (!o)
       throw new Error(`Element with id ${e} not found`);
-    r.appendChild(i);
+    o.appendChild(i);
   }
   /**
    * Show retention view for a customer
@@ -84,12 +84,12 @@ class a {
       throw new Error(
         `Invalid sessionId: ${t}. Expected a subscription session ID.`
       );
-    const r = document.createElement("div");
-    r.className = n || "renumerate-subscription-hub";
+    const o = document.createElement("div");
+    o.className = n || "renumerate-subscription-hub";
     const l = document.getElementById(e);
     if (!l)
       throw new Error(`Element with id ${e} not found`);
-    return l.appendChild(r), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = i || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", r.appendChild(this.subscriptionIframe), r;
+    return l.appendChild(o), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = i || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", o.appendChild(this.subscriptionIframe), o;
   }
   /**
    * Get subscription hub url
@@ -244,24 +244,13 @@ class a {
 			@media screen and (max-width: 480px) {
 					.renumerate-dialog {
 						min-width: 100vw;
-						width: 100vw;
-						max-width: 100vw;
-						height: 100vh;
-						max-height: 100vh;
-						border-radius: 0;
-						top: 0;
-						left: 0;
-						transform: none;
+						min-height: 100vh;
+						padding: 12px;
 					}
 
 					.renumerate-dialog-content {
-						padding: 5px;
-						min-width: 100vw;
-						width: 100vw;
-						max-width: 100vw;
-						min-height: 100vh;
-						height: 100vh;
-						max-height: 100vh;
+						min-width: 100%;
+						min-height: 100%;
 					}
 
 					.renumerate-dialog-close {
@@ -313,14 +302,14 @@ class a {
         );
         return;
       }
-      const { type: i, data: r } = e.data;
+      const { type: i, data: o } = e.data;
       switch (i) {
         case "cancel-subscription": {
-          this.showRetentionView(r.sessionId);
+          this.showRetentionView(o.sessionId);
           return;
         }
         case "resize": {
-          this.retentionIframe && r.height && typeof r.height == "number" && r.height > 0 && (this.retentionIframe.style.height = `${r.height}px`);
+          this.retentionIframe && o.height && typeof o.height == "number" && o.height > 0 && (this.retentionIframe.style.height = `${o.height}px`);
           return;
         }
         default:
@@ -333,7 +322,7 @@ class a {
    * @param type The type of session ("retention" or "subscription")
    */
   buildUrl(e) {
-    const t = this.getIsLocal(), n = (i, r) => `${i}?session_id=${r}`;
+    const t = this.getIsLocal(), n = (i, o) => `${i}?session_id=${o}`;
     switch (e.target) {
       case "retention":
         return n(t ? "http://localhost:4321/retention" : "https://retention.renumerate.com", e.sessionId);
