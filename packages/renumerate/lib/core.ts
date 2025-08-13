@@ -406,24 +406,13 @@ export class Renumerate {
 			@media screen and (max-width: 480px) {
 					.renumerate-dialog {
 						min-width: 100vw;
-						width: 100vw;
-						max-width: 100vw;
-						height: 100vh;
-						max-height: 100vh;
-						border-radius: 0;
-						top: 0;
-						left: 0;
-						transform: none;
+						min-height: 100vh;
+						padding: 12px;
 					}
 
 					.renumerate-dialog-content {
-						padding: 5px;
-						min-width: 100vw;
-						width: 100vw;
-						max-width: 100vw;
-						min-height: 100vh;
-						height: 100vh;
-						max-height: 100vh;
+						min-width: 100%;
+						min-height: 100%;
 					}
 
 					.renumerate-dialog-close {
