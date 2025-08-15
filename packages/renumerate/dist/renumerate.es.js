@@ -1,7 +1,7 @@
-var c = Object.defineProperty;
-var d = (s, e, t) => e in s ? c(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
-var r = (s, e, t) => d(s, typeof e != "symbol" ? e + "" : e, t);
-class a {
+var h = Object.defineProperty;
+var u = (s, e, t) => e in s ? h(s, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : s[e] = t;
+var r = (s, e, t) => u(s, typeof e != "symbol" ? e + "" : e, t);
+class c {
   constructor(e) {
     r(this, "config");
     r(this, "retentionDialog", null);
@@ -18,12 +18,12 @@ class a {
    */
   static getInstance(e) {
     if (typeof window > "u")
-      return new a(e);
+      return new c(e);
     if (window.RENUMERATE_INSTANCE) {
       const n = window.RENUMERATE_INSTANCE;
       return n.updateConfig(e), n;
     }
-    const t = new a(e);
+    const t = new c(e);
     return window.RENUMERATE_INSTANCE = t, t;
   }
   /**
@@ -86,10 +86,10 @@ class a {
       );
     const o = document.createElement("div");
     o.className = n || "renumerate-subscription-hub";
-    const l = document.getElementById(e);
-    if (!l)
+    const a = document.getElementById(e);
+    if (!a)
       throw new Error(`Element with id ${e} not found`);
-    return l.appendChild(o), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = i || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", o.appendChild(this.subscriptionIframe), o;
+    return a.appendChild(o), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = i || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", o.appendChild(this.subscriptionIframe), o;
   }
   /**
    * Get subscription hub url
@@ -208,12 +208,13 @@ class a {
 				background-color: #fcfbf9;
 				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 				min-width: 412px;
+				min-height: 304px;
 			}
 
 			.renumerate-dialog-content iframe {
 				width: 100%;
 				height: 100%;
-				min-height: 160px;
+				min-height: 304px;
 				min-width: 412x;
 				border: none;
 				margin: 0;
@@ -296,6 +297,7 @@ class a {
    */
   addListener() {
     this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
+      var a, l;
       if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
@@ -315,6 +317,17 @@ class a {
         }
         case "close-dialog": {
           this.retentionDialog && this.retentionDialog.close();
+          return;
+        }
+        case "subscription-invalidate": {
+          const d = this.getIsLocal() ? "http://localhost:4321" : "https://subs.renumerate.com";
+          (l = (a = this.subscriptionIframe) == null ? void 0 : a.contentWindow) == null || l.postMessage(
+            {
+              type: "subscription-invalidate",
+              data: o
+            },
+            d
+          );
           return;
         }
         default:
@@ -341,5 +354,5 @@ class a {
   }
 }
 export {
-  a as Renumerate
+  c as Renumerate
 };
