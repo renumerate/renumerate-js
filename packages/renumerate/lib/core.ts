@@ -370,6 +370,7 @@ export class Renumerate {
 				background-color: #fcfbf9;
 				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
 				min-width: 412px;
+				min-height: 304px;
 			}
 
 			.renumerate-dialog-content iframe {
@@ -507,6 +508,23 @@ export class Renumerate {
 					}
 					return;
 				}
+
+				case "subscription-invalidate": {
+					const isLocal = this.getIsLocal();
+					const targetOrigin = isLocal
+						? "http://localhost:4321"
+						: "https://subs.renumerate.com";
+
+					this.subscriptionIframe?.contentWindow?.postMessage(
+						{
+							type: "subscription-invalidate",
+							data: data,
+						},
+						targetOrigin,
+					);
+					return;
+				}
+
 				default: {
 					console.warn(`Unknown message type: ${type}`);
 				}
