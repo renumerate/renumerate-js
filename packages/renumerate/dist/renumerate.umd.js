@@ -64,7 +64,7 @@
 			.renumerate-dialog-content iframe {
 				width: 100%;
 				height: 100%;
-				min-height: 160px;
+				min-height: 304px;
 				min-width: 412x;
 				border: none;
 				margin: 0;
