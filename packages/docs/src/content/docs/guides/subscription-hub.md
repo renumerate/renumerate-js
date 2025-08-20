@@ -23,7 +23,44 @@ renumerate.mountSubscriptionHub("elementId", "sessionId", "classes");
 | --------- | ------------------- | ---------------------------------------- |
 | elementId | string              | The id for the container element         |
 | sessionId | string              | Your customer's subscription session id  |
-| classes   | string \| undefined | Button classes (optional)                |
+| wrapperClasses | string \| undefined | Wrapper element classes (optional)  |
+| iframeClasses | string \| undefined | Iframe element classes (optional)    |
+| callbacks | object \| undefined | Event callbacks (optional)               |
+
+#### Adding Callbacks
+
+You can add callback functions to respond to subscription management events:
+
+##### Callbacks
+| key          | type         | notes                                                 |
+| ------------ | ------------ | ------------------------------------------------------|
+| onComplete   | () => void   | Called when the retention flow is finished (optional) |
+| onRetained   | () => void   | Called when the customer is retained       (optional) |
+| onCancelled  | () => void   | Called when the customer cancels           (optional) |
+
+
+```typescript
+renumerate.mountSubscriptionHub(
+  "elementId", 
+  "sessionId", 
+  "hub-wrapper",
+  "hub-iframe",
+  {
+    onComplete: () => {
+      // Called when any action is completed
+      console.log("Subscription action completed");
+    },
+    onRetained: () => {
+      // Called when customer accepts a retention offer during cancellation
+      console.log("Customer was retained!");
+    },
+    onCancelled: () => {
+      // Called when customer completes cancellation
+      console.log("Customer cancelled subscription");
+    }
+  }
+);
+```
 
 ### React
 For React applications, use the SubscriptionHub component for seamless integration:
@@ -33,20 +70,33 @@ All Renumerate React components must be wrapped in a RenumerateProvider:
 
 ```tsx
 import React from 'react';
-import { RenumerateProvider } from '@renumerate/js/react';
+import { RenumerateProvider, SubscriptionHub } from '@renumerate/js/react';
 
 function App() {
+  const sessionId = "sub_example123";
+
   return (
     <RenumerateProvider config={{ publicKey: 'your-public-key' }}>
-      {/* Default styled subscription hub */}
-        <SubscriptionHub sessionId={sessionId} />
-        
-        {/* Or styled subscription hub */}
-        <SubscriptionHub 
-          sessionId={sessionId}
-          wrapperClassName="custom-hub-wrapper h-96 w-full border rounded-lg"
-          iframeClassName="w-full h-full rounded-lg"
-        />
+      {/* Default SubscriptionHub */}
+      <SubscriptionHub sessionId={sessionId} />
+      
+      {/* Styled SubscriptionHub with callbacks */}
+      <SubscriptionHub 
+        sessionId={sessionId}
+        wrapperClassName="custom-hub-wrapper h-96 w-full border rounded-lg"
+        iframeClassName="w-full h-full rounded-lg"
+        callbacks={{
+          onComplete: () => {
+            console.log("Action completed in subscription hub");
+          },
+          onRetained: () => {
+            alert("Great! Your subscription has been saved.");
+          },
+          onCancelled: () => {
+            window.location.href = "/goodbye";
+          }
+        }}
+      />
     </RenumerateProvider>
   );
 }
