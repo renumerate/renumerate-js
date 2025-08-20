@@ -199,6 +199,15 @@ export class Renumerate {
 		this.retentionDialog.addEventListener("close", () => {
 			this.activeCallbacks.onComplete?.();
 			this.activeCallbacks = {};
+
+			if (this.subscriptionIframe) {
+				const message = {
+					type: "on-complete",
+					data: {},
+				};
+				this.subscriptionIframe.contentWindow?.postMessage(message, "*");
+			}
+
 			this.retentionDialog?.remove();
 		});
 

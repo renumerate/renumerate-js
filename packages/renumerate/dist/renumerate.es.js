@@ -1,7 +1,7 @@
 var p = Object.defineProperty;
 var g = (l, e, t) => e in l ? p(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
 var a = (l, e, t) => g(l, typeof e != "symbol" ? e + "" : e, t);
-class c {
+class h {
   constructor(e) {
     a(this, "config");
     a(this, "retentionDialog", null);
@@ -25,12 +25,12 @@ class c {
    */
   static getInstance(e) {
     if (typeof window > "u")
-      return new c(e);
+      return new h(e);
     if (window.RENUMERATE_INSTANCE) {
       const n = window.RENUMERATE_INSTANCE;
       return n.updateConfig(e), n;
     }
-    const t = new c(e);
+    const t = new h(e);
     return window.RENUMERATE_INSTANCE = t, t;
   }
   /**
@@ -85,8 +85,15 @@ class c {
       target: "retention",
       sessionId: e
     }), o.appendChild(this.retentionIframe), this.retentionDialog.appendChild(o), o.prepend(n), document.body.appendChild(this.retentionDialog), this.retentionDialog.showModal(), n.blur(), this.retentionDialog.addEventListener("close", () => {
-      var i, s, r;
-      (s = (i = this.activeCallbacks).onComplete) == null || s.call(i), this.activeCallbacks = {}, (r = this.retentionDialog) == null || r.remove();
+      var i, s, r, c;
+      if ((s = (i = this.activeCallbacks).onComplete) == null || s.call(i), this.activeCallbacks = {}, this.subscriptionIframe) {
+        const d = {
+          type: "on-complete",
+          data: {}
+        };
+        (r = this.subscriptionIframe.contentWindow) == null || r.postMessage(d, "*");
+      }
+      (c = this.retentionDialog) == null || c.remove();
     }), this.retentionDialog;
   }
   /**
@@ -319,7 +326,7 @@ class c {
    */
   addListener() {
     this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
-      var s, r, d, h, u, m;
+      var s, r, c, d, u, m;
       if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
@@ -346,7 +353,7 @@ class c {
           return;
         }
         case "on-retained": {
-          (h = (d = this.activeCallbacks).onRetained) == null || h.call(d);
+          (d = (c = this.activeCallbacks).onRetained) == null || d.call(c);
           return;
         }
         case "on-cancelled": {
@@ -377,5 +384,5 @@ class c {
   }
 }
 export {
-  c as Renumerate
+  h as Renumerate
 };
