@@ -200,15 +200,35 @@ export class Renumerate {
 			this.activeCallbacks.onComplete?.();
 			this.activeCallbacks = {};
 
-			if (this.subscriptionIframe) {
-				const message = {
-					type: "on-complete",
-					data: {},
-				};
-				this.subscriptionIframe.contentWindow?.postMessage(message, "*");
-			}
+			const isLocal = this.getIsLocal();
+			const targetOrigin = isLocal
+				? "http://localhost:4321"
+				: "https://subs.renumerate.com";
 
-			this.retentionDialog?.remove();
+			try {
+				// Sends on-complete to any iframe that looks like a SubscriptionHub
+				const allIframes = Array.from(document.getElementsByTagName("iframe"));
+				allIframes.forEach((iframe) => {
+					const srcAttr = iframe.getAttribute("src") || "";
+					if (
+						srcAttr.includes("subs.renumerate.com") ||
+						srcAttr.includes("localhost:4321/subs")
+					) {
+						if (iframe.contentWindow) {
+							iframe.contentWindow.postMessage(
+								{ type: "on-complete", data: {} },
+								targetOrigin,
+							);
+						}
+					}
+				});
+			} catch (err) {
+				if (this.config?.debug) {
+					console.warn("Error sending on-complete to iframes:", err);
+				}
+			} finally {
+				this.retentionDialog?.remove();
+			}
 		});
 
 		return this.retentionDialog;

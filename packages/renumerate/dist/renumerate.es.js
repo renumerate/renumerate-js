@@ -1,7 +1,7 @@
-var p = Object.defineProperty;
-var g = (l, e, t) => e in l ? p(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
-var a = (l, e, t) => g(l, typeof e != "symbol" ? e + "" : e, t);
-class h {
+var f = Object.defineProperty;
+var b = (l, e, t) => e in l ? f(l, e, { enumerable: !0, configurable: !0, writable: !0, value: t }) : l[e] = t;
+var a = (l, e, t) => b(l, typeof e != "symbol" ? e + "" : e, t);
+class p {
   constructor(e) {
     a(this, "config");
     a(this, "retentionDialog", null);
@@ -25,12 +25,12 @@ class h {
    */
   static getInstance(e) {
     if (typeof window > "u")
-      return new h(e);
+      return new p(e);
     if (window.RENUMERATE_INSTANCE) {
-      const n = window.RENUMERATE_INSTANCE;
-      return n.updateConfig(e), n;
+      const i = window.RENUMERATE_INSTANCE;
+      return i.updateConfig(e), i;
     }
-    const t = new h(e);
+    const t = new p(e);
     return window.RENUMERATE_INSTANCE = t, t;
   }
   /**
@@ -45,25 +45,25 @@ class h {
    * @param sessionId Mandatory customer session identifier
    * @param options Options object or classes string
    */
-  mountCancelButton(e, t, n) {
-    let o = {};
-    if (typeof n == "string" ? o.classes = n : n && (o = n), !this.isSessionType(t, "retention"))
+  mountCancelButton(e, t, i) {
+    let n = {};
+    if (typeof i == "string" ? n.classes = i : i && (n = i), !this.isSessionType(t, "retention"))
       throw new Error(
         `Invalid sessionId: ${t}. Expected a retention session ID.`
       );
-    const i = document.createElement("button");
-    i.textContent = "Cancel Subscription", i.addEventListener("click", () => {
+    const o = document.createElement("button");
+    o.textContent = "Cancel Subscription", o.addEventListener("click", () => {
       const r = {
-        onComplete: o.onComplete,
-        onRetained: o.onRetained,
-        onCancelled: o.onCancelled
+        onComplete: n.onComplete,
+        onRetained: n.onRetained,
+        onCancelled: n.onCancelled
       };
       this.showRetentionView(t, r);
-    }), o.classes ? i.className = o.classes : i.className = "renumerate-cancel-btn";
+    }), n.classes ? o.className = n.classes : o.className = "renumerate-cancel-btn";
     const s = document.getElementById(e);
     if (!s)
       throw new Error(`Element with id ${e} not found`);
-    s.appendChild(i);
+    s.appendChild(o);
   }
   /**
    * Show retention view for a customer
@@ -75,25 +75,32 @@ class h {
         `Invalid sessionId: ${e}. Expected a retention or subscription session ID.`
       );
     this.retentionDialog = document.createElement("dialog"), this.retentionDialog.className = "renumerate-dialog";
-    const n = document.createElement("button");
-    n.className = "renumerate-dialog-close", n.innerHTML = "&times;", n.setAttribute("aria-label", "Close"), this.retentionDialog.appendChild(n), n.addEventListener("click", () => {
-      var i;
-      (i = this.retentionDialog) == null || i.close();
+    const i = document.createElement("button");
+    i.className = "renumerate-dialog-close", i.innerHTML = "&times;", i.setAttribute("aria-label", "Close"), this.retentionDialog.appendChild(i), i.addEventListener("click", () => {
+      var o;
+      (o = this.retentionDialog) == null || o.close();
     });
-    const o = document.createElement("div");
-    return o.className = "renumerate-dialog-content", this.retentionIframe = document.createElement("iframe"), this.retentionIframe.src = this.buildUrl({
+    const n = document.createElement("div");
+    return n.className = "renumerate-dialog-content", this.retentionIframe = document.createElement("iframe"), this.retentionIframe.src = this.buildUrl({
       target: "retention",
       sessionId: e
-    }), o.appendChild(this.retentionIframe), this.retentionDialog.appendChild(o), o.prepend(n), document.body.appendChild(this.retentionDialog), this.retentionDialog.showModal(), n.blur(), this.retentionDialog.addEventListener("close", () => {
-      var i, s, r, c;
-      if ((s = (i = this.activeCallbacks).onComplete) == null || s.call(i), this.activeCallbacks = {}, this.subscriptionIframe) {
-        const d = {
-          type: "on-complete",
-          data: {}
-        };
-        (r = this.subscriptionIframe.contentWindow) == null || r.postMessage(d, "*");
+    }), n.appendChild(this.retentionIframe), this.retentionDialog.appendChild(n), n.prepend(i), document.body.appendChild(this.retentionDialog), this.retentionDialog.showModal(), i.blur(), this.retentionDialog.addEventListener("close", () => {
+      var r, c, d, h;
+      (c = (r = this.activeCallbacks).onComplete) == null || c.call(r), this.activeCallbacks = {};
+      const s = this.getIsLocal() ? "http://localhost:4321" : "https://subs.renumerate.com";
+      try {
+        Array.from(document.getElementsByTagName("iframe")).forEach((m) => {
+          const g = m.getAttribute("src") || "";
+          (g.includes("subs.renumerate.com") || g.includes("localhost:4321/subs")) && m.contentWindow && m.contentWindow.postMessage(
+            { type: "on-complete", data: {} },
+            s
+          );
+        });
+      } catch (u) {
+        (d = this.config) != null && d.debug && console.warn("Error sending on-complete to iframes:", u);
+      } finally {
+        (h = this.retentionDialog) == null || h.remove();
       }
-      (c = this.retentionDialog) == null || c.remove();
     }), this.retentionDialog;
   }
   /**
@@ -105,21 +112,21 @@ class h {
    * @param callbacks Optional callbacks for subscription events
    * @returns
    */
-  mountSubscriptionHub(e, t, n = "", o = "", i) {
+  mountSubscriptionHub(e, t, i = "", n = "", o) {
     if (!this.isSessionType(t, "subscription"))
       throw new Error(
         `Invalid sessionId: ${t}. Expected a subscription session ID.`
       );
-    i && (this.activeCallbacks = {
+    o && (this.activeCallbacks = {
       ...this.config.callbacks,
-      ...i
+      ...o
     });
     const s = document.createElement("div");
-    s.className = n || "renumerate-subscription-hub";
+    s.className = i || "renumerate-subscription-hub";
     const r = document.getElementById(e);
     if (!r)
       throw new Error(`Element with id ${e} not found`);
-    return r.appendChild(s), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = o || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", s.appendChild(this.subscriptionIframe), s;
+    return r.appendChild(s), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = n || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", s.appendChild(this.subscriptionIframe), s;
   }
   /**
    * Get subscription hub url
@@ -326,7 +333,7 @@ class h {
    */
   addListener() {
     this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
-      var s, r, c, d, u, m;
+      var s, r, c, d, h, u;
       if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
@@ -334,14 +341,14 @@ class h {
         );
         return;
       }
-      const { type: o, data: i } = e.data;
-      switch (o) {
+      const { type: n, data: o } = e.data;
+      switch (n) {
         case "cancel-subscription": {
-          this.showRetentionView(i.sessionId, this.activeCallbacks);
+          this.showRetentionView(o.sessionId, this.activeCallbacks);
           return;
         }
         case "resize": {
-          this.retentionIframe && i.height && typeof i.height == "number" && i.height > 0 && (this.retentionIframe.style.height = `${i.height}px`);
+          this.retentionIframe && o.height && typeof o.height == "number" && o.height > 0 && (this.retentionIframe.style.height = `${o.height}px`);
           return;
         }
         case "close-dialog": {
@@ -357,11 +364,11 @@ class h {
           return;
         }
         case "on-cancelled": {
-          (m = (u = this.activeCallbacks).onCancelled) == null || m.call(u);
+          (u = (h = this.activeCallbacks).onCancelled) == null || u.call(h);
           return;
         }
         default:
-          console.warn(`Unknown message type: ${o}`);
+          console.warn(`Unknown message type: ${n}`);
       }
     }, window.addEventListener("message", this.windowListener);
   }
@@ -370,12 +377,12 @@ class h {
    * @param type The type of session ("retention" or "subscription")
    */
   buildUrl(e) {
-    const t = this.getIsLocal(), n = (o, i) => `${o}?session_id=${i}`;
+    const t = this.getIsLocal(), i = (n, o) => `${n}?session_id=${o}`;
     switch (e.target) {
       case "retention":
-        return n(t ? "http://localhost:4321/retention" : "https://retention.renumerate.com", e.sessionId);
+        return i(t ? "http://localhost:4321/retention" : "https://retention.renumerate.com", e.sessionId);
       case "subscription":
-        return n(t ? "http://localhost:4321/subs" : "https://subs.renumerate.com", e.sessionId);
+        return i(t ? "http://localhost:4321/subs" : "https://subs.renumerate.com", e.sessionId);
       case "event":
         return t ? "http://localhost:4321/event/" : "https://renumerate.com/event/";
       default:
@@ -384,5 +391,5 @@ class h {
   }
 }
 export {
-  h as Renumerate
+  p as Renumerate
 };
