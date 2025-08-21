@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Renumerate, type RenumerateConfig } from "./core";
+import {
+	type CallbackOptions,
+	Renumerate,
+	type RenumerateConfig,
+} from "./core";
 
 interface RenumerateContextValue {
 	instance: Renumerate;
@@ -7,6 +11,7 @@ interface RenumerateContextValue {
 
 interface UseRenumerateParams {
 	sessionId: string;
+	callbacks?: CallbackOptions;
 }
 
 interface UseRenumerateReturn {
@@ -60,6 +65,7 @@ export function RenumerateProvider({
  */
 export function useRenumerate({
 	sessionId,
+	callbacks,
 }: UseRenumerateParams): UseRenumerateReturn {
 	const context = React.useContext(RenumerateContext);
 	if (!context) {
@@ -67,8 +73,8 @@ export function useRenumerate({
 	}
 
 	const cachedOpen = React.useCallback(() => {
-		context.instance.showRetentionView(sessionId);
-	}, [sessionId, context.instance]);
+		context.instance.showRetentionView(sessionId, callbacks);
+	}, [sessionId, callbacks, context.instance]);
 
 	return {
 		open: cachedOpen,
@@ -80,8 +86,11 @@ export function useRenumerate({
  */
 export function CancelButton({
 	sessionId,
+	callbacks,
 	className,
-}: UseRenumerateParams & { className?: string }) {
+}: UseRenumerateParams & {
+	className?: string;
+}) {
 	const context = React.useContext(RenumerateContext);
 
 	if (!context) {
@@ -89,7 +98,7 @@ export function CancelButton({
 	}
 
 	const handleClick = () => {
-		context.instance.showRetentionView(sessionId);
+		context.instance.showRetentionView(sessionId, callbacks);
 	};
 
 	return (
@@ -102,11 +111,13 @@ export function CancelButton({
 		</button>
 	);
 }
+
 /**
  * SubscriptionHub Component
  */
 export function SubscriptionHub({
 	sessionId,
+	callbacks,
 	wrapperClassName,
 	iframeClassName,
 }: UseRenumerateParams & {
@@ -116,8 +127,16 @@ export function SubscriptionHub({
 	const context = React.useContext(RenumerateContext);
 
 	if (!context) {
-		throw new Error("useRenumerate must be used within a RenumerateProvider");
+		throw new Error("SubscriptionHub must be used within a RenumerateProvider");
 	}
+
+	useEffect(() => {
+		context.instance.setCallbacks(callbacks);
+
+		return () => {
+			context.instance.setCallbacks();
+		};
+	}, [callbacks, context.instance]);
 
 	return (
 		<div className={wrapperClassName || "renumerate-subscription-hub"}>

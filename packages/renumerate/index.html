@@ -8,7 +8,9 @@
   <body>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script type="module" src="/lib/main.ts"></script>
-
+    <script>
+        window.RENUMERATE_LOCAL = true;
+    </script>
     <div
       class="container p-4 mx-auto bg-gray-100 rounded-lg flex flex-col gap-8"
     >
@@ -20,8 +22,13 @@
       <button
         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         id="mount_subscription_hub"
-        onclick="renumerate.mountCancelButton('cancel_button', document.getElementById('retention_session_id').value)"
-        >Load
+        onclick="renumerate.mountCancelButton('cancel_button', document.getElementById('retention_session_id').value, { 
+          onComplete: () => console.log('Retention flow completed!'),
+          onRetained: () => console.log('Customer was retained!'),
+          onCancelled: () => console.log('Customer cancelled subscription!')
+        })"        
+      >
+        Load
       </button>
 
       <div class="flex flex-col justify-center gap-4">
@@ -52,8 +59,9 @@
       <button
         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         id="mount_subscription_hub"
-        onclick="renumerate.mountSubscriptionHub('subscription_hub', document.getElementById('subscription_session_id').value, 'h-[320px] w-full', 'h-[320px] w-full')"
-        >Load
+        onclick="renumerate.mountSubscriptionHub('subscription_hub', document.getElementById('subscription_session_id').value, 'h-[400px] w-full', 'h-[400px] w-full')"
+      >
+        Load
       </button>
 
       <div class="flex flex-col justify-center gap-4">

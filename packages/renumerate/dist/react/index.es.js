@@ -1,46 +1,48 @@
-import { jsx as u } from "react/jsx-runtime";
-import r, { useState as c, useEffect as a } from "react";
-import { Renumerate as s } from "../renumerate.es.js";
-const i = r.createContext(
+import { jsx as o } from "react/jsx-runtime";
+import i, { useState as s, useEffect as c } from "react";
+import { Renumerate as m } from "../renumerate.es.js";
+const a = i.createContext(
   null
 );
-function p({
+function h({
   config: t,
   children: n
 }) {
-  const [e] = c(() => s.getInstance(t));
-  return a(() => {
+  const [e] = s(() => m.getInstance(t));
+  return c(() => {
     e.updateConfig(t);
-  }, [t, e]), a(() => (e.cleanup(), e.initialize(), () => {
+  }, [t, e]), c(() => (e.cleanup(), e.initialize(), () => {
     e.cleanup();
-  }), [e]), /* @__PURE__ */ u(i.Provider, { value: { instance: e }, children: n });
-}
-function h({
-  sessionId: t
-}) {
-  const n = r.useContext(i);
-  if (!n)
-    throw new Error("useRenumerate must be used within a RenumerateProvider");
-  return {
-    open: r.useCallback(() => {
-      n.instance.showRetentionView(t);
-    }, [t, n.instance])
-  };
+  }), [e]), /* @__PURE__ */ o(a.Provider, { value: { instance: e }, children: n });
 }
 function d({
   sessionId: t,
-  className: n
+  callbacks: n
 }) {
-  const e = r.useContext(i);
+  const e = i.useContext(a);
   if (!e)
     throw new Error("useRenumerate must be used within a RenumerateProvider");
-  return /* @__PURE__ */ u(
+  return {
+    open: i.useCallback(() => {
+      e.instance.showRetentionView(t, n);
+    }, [t, n, e.instance])
+  };
+}
+function C({
+  sessionId: t,
+  callbacks: n,
+  className: e
+}) {
+  const u = i.useContext(a);
+  if (!u)
+    throw new Error("useRenumerate must be used within a RenumerateProvider");
+  return /* @__PURE__ */ o(
     "button",
     {
       type: "button",
-      className: n || "renumerate-cancel-btn",
+      className: e || "renumerate-cancel-btn",
       onClick: () => {
-        e.instance.showRetentionView(t);
+        u.instance.showRetentionView(t, n);
       },
       children: "Cancel Subscription"
     }
@@ -48,24 +50,27 @@ function d({
 }
 function f({
   sessionId: t,
-  wrapperClassName: n,
-  iframeClassName: e
+  callbacks: n,
+  wrapperClassName: e,
+  iframeClassName: u
 }) {
-  const o = r.useContext(i);
-  if (!o)
-    throw new Error("useRenumerate must be used within a RenumerateProvider");
-  return /* @__PURE__ */ u("div", { className: n || "renumerate-subscription-hub", children: /* @__PURE__ */ u(
+  const r = i.useContext(a);
+  if (!r)
+    throw new Error("SubscriptionHub must be used within a RenumerateProvider");
+  return c(() => (r.instance.setCallbacks(n), () => {
+    r.instance.setCallbacks();
+  }), [n, r.instance]), /* @__PURE__ */ o("div", { className: e || "renumerate-subscription-hub", children: /* @__PURE__ */ o(
     "iframe",
     {
-      className: e || "renumerate-subscription-hub-iframe",
+      className: u || "renumerate-subscription-hub-iframe",
       title: "SubscriptionHub",
-      src: o.instance.getSubscriptionHubUrl(t)
+      src: r.instance.getSubscriptionHubUrl(t)
     }
   ) });
 }
 export {
-  d as CancelButton,
-  p as RenumerateProvider,
+  C as CancelButton,
+  h as RenumerateProvider,
   f as SubscriptionHub,
-  h as useRenumerate
+  d as useRenumerate
 };

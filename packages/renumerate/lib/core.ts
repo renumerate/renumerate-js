@@ -9,10 +9,24 @@ type UrlBuildParams =
 	| { target: "subscription"; sessionId: string }
 	| { target: "event" };
 
+export interface CallbackOptions {
+	onComplete?: () => void;
+	onRetained?: () => void;
+	onCancelled?: () => void;
+}
+
+interface MountCancelButtonOptions {
+	classes?: string;
+	onComplete?: () => void;
+	onRetained?: () => void;
+	onCancelled?: () => void;
+}
+
 // Public interface
 export interface RenumerateConfig {
 	publicKey: string;
 	debug?: boolean;
+	callbacks?: CallbackOptions;
 }
 
 export interface EventData {
@@ -26,6 +40,7 @@ export class Renumerate {
 	private subscriptionIframe: HTMLIFrameElement | null = null;
 	private styleSheet: HTMLStyleElement | null = null;
 	private windowListener: ((event: MessageEvent) => void) | null = null;
+	private activeCallbacks: CallbackOptions = {};
 
 	constructor(config: RenumerateConfig) {
 		this.config = config;
@@ -38,6 +53,13 @@ export class Renumerate {
 		}
 
 		this.initialize();
+	}
+
+	setCallbacks(callbacks?: CallbackOptions) {
+		this.activeCallbacks = {
+			...this.config.callbacks,
+			...callbacks,
+		};
 	}
 
 	/**
@@ -72,14 +94,23 @@ export class Renumerate {
 
 	/**
 	 * Mount a cancel button for a subscriber
+	 * @param elementId Element ID to mount the button
 	 * @param sessionId Mandatory customer session identifier
+	 * @param options Options object or classes string
 	 */
 	mountCancelButton(
 		elementId: string,
 		sessionId: string,
-		classes: string = "",
+		options?: MountCancelButtonOptions | string,
 	) {
-		// Validate sessionId
+		let finalOptions: MountCancelButtonOptions = {};
+
+		if (typeof options === "string") {
+			finalOptions.classes = options;
+		} else if (options) {
+			finalOptions = options;
+		}
+
 		if (!this.isSessionType(sessionId, "retention")) {
 			throw new Error(
 				`Invalid sessionId: ${sessionId}. Expected a retention session ID.`,
@@ -89,11 +120,16 @@ export class Renumerate {
 		const button = document.createElement("button");
 		button.textContent = "Cancel Subscription";
 		button.addEventListener("click", () => {
-			this.showRetentionView(sessionId);
+			const callbacks = {
+				onComplete: finalOptions.onComplete,
+				onRetained: finalOptions.onRetained,
+				onCancelled: finalOptions.onCancelled,
+			};
+			this.showRetentionView(sessionId, callbacks);
 		});
 
-		if (classes) {
-			button.className = classes;
+		if (finalOptions.classes) {
+			button.className = finalOptions.classes;
 		} else {
 			button.className = "renumerate-cancel-btn";
 		}
@@ -109,7 +145,9 @@ export class Renumerate {
 	 * Show retention view for a customer
 	 * @param sessionId Mandatory customer session identifier
 	 */
-	showRetentionView(sessionId: string): HTMLDialogElement | null {
+	showRetentionView(sessionId: string, callbacks?: CallbackOptions) {
+		this.setCallbacks(callbacks);
+
 		// Validate sessionId
 		if (
 			!this.isSessionType(sessionId, "retention") &&
@@ -159,7 +197,8 @@ export class Renumerate {
 
 		// Teardown
 		this.retentionDialog.addEventListener("close", () => {
-			// We can be reasonably sure that the dialog is not null here
+			this.activeCallbacks.onComplete?.();
+			this.activeCallbacks = {};
 			this.retentionDialog?.remove();
 		});
 
@@ -168,7 +207,11 @@ export class Renumerate {
 
 	/**
 	 * Mount the SubscriptionHub for a customer
+	 * @param elementId
 	 * @param sessionId
+	 * @param wrapperClasses
+	 * @param iframeClasses
+	 * @param callbacks Optional callbacks for subscription events
 	 * @returns
 	 */
 	mountSubscriptionHub(
@@ -176,12 +219,24 @@ export class Renumerate {
 		sessionId: string,
 		wrapperClasses: string = "",
 		iframeClasses: string = "",
+		callbacks?: {
+			onComplete?: () => void;
+			onRetained?: () => void;
+			onCancelled?: () => void;
+		},
 	): HTMLElement {
 		// Validate sessionId
 		if (!this.isSessionType(sessionId, "subscription")) {
 			throw new Error(
 				`Invalid sessionId: ${sessionId}. Expected a subscription session ID.`,
 			);
+		}
+
+		if (callbacks) {
+			this.activeCallbacks = {
+				...this.config.callbacks,
+				...callbacks,
+			};
 		}
 
 		const container = document.createElement("div");
@@ -484,7 +539,7 @@ export class Renumerate {
 			const { type, data } = event.data;
 			switch (type) {
 				case "cancel-subscription": {
-					this.showRetentionView(data.sessionId);
+					this.showRetentionView(data.sessionId, this.activeCallbacks);
 					return;
 				}
 
@@ -497,7 +552,6 @@ export class Renumerate {
 					) {
 						this.retentionIframe.style.height = `${data.height}px`;
 					}
-
 					return;
 				}
 
@@ -507,6 +561,22 @@ export class Renumerate {
 					}
 					return;
 				}
+
+				case "on-complete": {
+					this.activeCallbacks.onComplete?.();
+					return;
+				}
+
+				case "on-retained": {
+					this.activeCallbacks.onRetained?.();
+					return;
+				}
+
+				case "on-cancelled": {
+					this.activeCallbacks.onCancelled?.();
+					return;
+				}
+
 				default: {
 					console.warn(`Unknown message type: ${type}`);
 				}
