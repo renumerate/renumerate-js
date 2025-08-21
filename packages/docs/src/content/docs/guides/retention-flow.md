@@ -36,6 +36,44 @@ You can display the retention modal in two ways:
 | elementId | string              | The id for the container element |
 | sessionId | string              | Your customer's session id       |
 | classes   | string \| undefined | Button classes (optional)        |
+| callbacks |                     | Callback Functions (optional)
+#### Adding Callbacks
+
+You can add callback functions to respond to retention flow events:
+
+##### Callbacks
+| key          | type         | notes                                                 |
+| ------------ | ------------ | ------------------------------------------------------|
+| onComplete   | () => void   | Called when the retention flow is finished (optional) |
+| onRetained   | () => void   | Called when the customer is retained       (optional) |
+| onCancelled  | () => void   | Called when the customer cancels           (optional) |
+
+
+```typescript
+// With mountCancelButton
+renumerate.mountCancelButton("elementId", "sessionId", {
+  classes: "my-cancel-btn",
+  onRetained: () => console.log("Customer was retained!"),
+  onCancelled: () => console.log("Customer cancelled"),
+  onComplete: () => console.log("Flow completed")
+});
+
+// With showRetentionView
+renumerate.showRetentionView("sessionId", {
+  onRetained: () => {
+    // Customer accepted an offer
+    window.location.reload();
+  },
+  onCancelled: () => {
+    // Customer proceeded with cancellation
+    window.location.href = "/goodbye";
+  },
+  onComplete: () => {
+    // Flow finished (regardless of outcome)
+    console.log("Retention flow completed");
+  }
+});
+```
 
 ### React
 
@@ -59,10 +97,13 @@ function MyComponent() {
         {/* Default styled cancel button */}
         <CancelButton sessionId={sessionId} />
         
-        {/* Custom styling cancel button */}
+        {/* Custom styling with callbacks */}
         <CancelButton 
           sessionId={sessionId}
           className="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+          callbacks={{
+            onCancelled: () => window.location.href = "/goodbye"
+          }}
         />
     </RenumerateProvider>
   );
@@ -76,7 +117,18 @@ import React from 'react';
 import { RenumerateProvider, useRenumerate } from '@renumerate/js/react';
 
 function CustomCancelComponent({ sessionId }: { sessionId: string }) {
-  const { open } = useRenumerate({ sessionId });
+  const { open } = useRenumerate({ 
+    sessionId,
+    callbacks: {
+      onRetained: () => {
+        alert("Welcome back! Your subscription has been saved.");
+        window.location.reload();
+      },
+      onCancelled: () => {
+        window.location.href = "/feedback";
+      }
+    }
+  });
 
   const handleCancelClick = () => {
     // You can add custom logic here before opening the retention flow
