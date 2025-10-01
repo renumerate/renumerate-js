@@ -554,7 +554,7 @@ export class Renumerate {
 
 			const isLocal = this.getIsLocal();
 			const allowedOrigins = isLocal
-				? ["http://localhost:3000", "http://localhost:4321"]
+				? ["https://localhost:4321"]
 				: ["https://retention.renumerate.com", "https://subs.renumerate.com"];
 
 			if (!allowedOrigins.includes(event.origin)) {
@@ -629,22 +629,22 @@ export class Renumerate {
 		switch (params.target) {
 			case "retention": {
 				const url = isLocal
-					? "http://localhost:4321/retention"
+					? "https://localhost:4321/retention"
 					: "https://retention.renumerate.com";
 				return withSessionId(url, params.sessionId);
 			}
 
 			case "subscription": {
 				const url = isLocal
-					? "http://localhost:4321/subs"
+					? "https://localhost:4321/subs"
 					: "https://subs.renumerate.com";
 				return withSessionId(url, params.sessionId);
 			}
 
 			case "event":
 				return isLocal
-					? "http://localhost:4321/event/"
-					: "https://renumerate.com/event/";
+					? "https://localhost:4321/event/"
+					: "https://api.renumerate.com/v1/events/";
 			default:
 				throw new Error(`Unknown type: ${params}`);
 		}

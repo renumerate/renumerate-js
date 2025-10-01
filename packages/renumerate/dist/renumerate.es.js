@@ -334,7 +334,7 @@ class p {
   addListener() {
     this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
       var s, r, c, d, h, u;
-      if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["http://localhost:3000", "http://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
+      if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["https://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
           e.origin
@@ -380,11 +380,11 @@ class p {
     const t = this.getIsLocal(), i = (n, o) => `${n}?session_id=${o}`;
     switch (e.target) {
       case "retention":
-        return i(t ? "http://localhost:4321/retention" : "https://retention.renumerate.com", e.sessionId);
+        return i(t ? "https://localhost:4321/retention" : "https://retention.renumerate.com", e.sessionId);
       case "subscription":
-        return i(t ? "http://localhost:4321/subs" : "https://subs.renumerate.com", e.sessionId);
+        return i(t ? "https://localhost:4321/subs" : "https://subs.renumerate.com", e.sessionId);
       case "event":
-        return t ? "http://localhost:4321/event/" : "https://renumerate.com/event/";
+        return t ? "https://localhost:4321/event/" : "https://api.renumerate.com/v1/events/";
       default:
         throw new Error(`Unknown type: ${e}`);
     }
