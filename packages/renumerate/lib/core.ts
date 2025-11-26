@@ -396,12 +396,14 @@ export class Renumerate {
 
 		this.styleSheet.innerHTML = `
 			.renumerate-subscription-hub {
-				height: 400px;
+				height: max-content;
+				min-height: 400px;
 				width: 100%;
 			}
 
 			.renumerate-subscription-hub-iframe {
-				height: 400px;
+				height: max-content;
+				min-height: 400px;
 				width: 100%;
 			}
 
@@ -574,13 +576,20 @@ export class Renumerate {
 				}
 
 				case "resize": {
+					const targetIframe =
+						data.iframe === "subhub"
+							? (document.querySelector(
+									".renumerate-subscription-hub-iframe",
+								) as HTMLIFrameElement)
+							: this.retentionIframe;
+
 					if (
-						this.retentionIframe &&
+						targetIframe &&
 						data.height &&
 						typeof data.height === "number" &&
 						data.height > 0
 					) {
-						this.retentionIframe.style.height = `${data.height}px`;
+						targetIframe.style.height = `${data.height}px`;
 					}
 					return;
 				}

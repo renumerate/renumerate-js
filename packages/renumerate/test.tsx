@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ReactDOM from "react-dom/client";
 import { CancelButton, RenumerateProvider, SubscriptionHub } from "./lib/react";
+import React from "react";
 
 function App() {
 	const [retentionSessionId, setRetentionSessionId] = useState("");
