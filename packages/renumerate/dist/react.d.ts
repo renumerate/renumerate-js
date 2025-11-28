@@ -18,6 +18,7 @@ declare interface RenumerateConfig {
     publicKey: string;
     debug?: boolean;
     callbacks?: CallbackOptions;
+    fallbackEmail?: string;
 }
 
 /**

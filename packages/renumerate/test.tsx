@@ -29,7 +29,7 @@ function App() {
 						<div className="flex flex-col gap-2 items-start">
 							<h3 className="font-semibold">Default CancelButton</h3>
 							<RenumerateProvider config={{ publicKey: "test", debug: true }}>
-								<CancelButton sessionId={retentionSessionId} />
+								<CancelButton sessionId={retentionSessionId} fallbackEmail="cancel@renumerate.com"/>
 							</RenumerateProvider>
 						</div>
 					</div>
