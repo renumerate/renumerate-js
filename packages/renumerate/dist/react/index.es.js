@@ -65,7 +65,7 @@ function C({
       className: u || "renumerate-subscription-hub-iframe",
       title: "SubscriptionHub",
       src: r.instance.getSubscriptionHubUrl(t),
-      allow: "publickey-credentials-get",
+      allow: "publickey-credentials-get; payment",
       "data-renumerate-subhub": "true"
     }
   ) });

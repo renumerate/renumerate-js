@@ -338,7 +338,10 @@ export class Renumerate {
 		this.subscriptionIframe.className =
 			iframeClasses || "renumerate-subscription-hub-iframe";
 		this.subscriptionIframe.title = "SubscriptionHub";
-		this.subscriptionIframe.setAttribute("allow", "publickey-credentials-get");
+		this.subscriptionIframe.setAttribute(
+			"allow",
+			"publickey-credentials-get; payment",
+		);
 		this.subscriptionIframe.setAttribute("data-renumerate-subhub", "true");
 
 		container.appendChild(this.subscriptionIframe);
