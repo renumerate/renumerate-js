@@ -87,7 +87,7 @@ class p {
     }), n.appendChild(this.retentionIframe), this.retentionDialog.appendChild(n), n.prepend(i), document.body.appendChild(this.retentionDialog), this.retentionDialog.showModal(), i.blur(), this.retentionDialog.addEventListener("close", () => {
       var r, c, d, h;
       (c = (r = this.activeCallbacks).onComplete) == null || c.call(r), this.activeCallbacks = {};
-      const s = this.getIsLocal() ? "http://localhost:4321" : "https://subs.renumerate.com";
+      const s = this.getIsLocal() ? "https://localhost:4321" : "https://subs.renumerate.com";
       try {
         Array.from(document.getElementsByTagName("iframe")).forEach((m) => {
           const g = m.getAttribute("src") || "";

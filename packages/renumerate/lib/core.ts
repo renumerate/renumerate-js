@@ -202,7 +202,7 @@ export class Renumerate {
 
 			const isLocal = this.getIsLocal();
 			const targetOrigin = isLocal
-				? "http://localhost:4321"
+				? "https://localhost:4321"
 				: "https://subs.renumerate.com";
 
 			try {
