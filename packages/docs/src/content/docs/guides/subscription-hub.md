@@ -76,7 +76,10 @@ function App() {
   const sessionId = "sub_example123";
 
   return (
-    <RenumerateProvider config={{ publicKey: 'your-public-key' }}>
+    <RenumerateProvider config={{
+      publicKey: 'your-public-key',
+      fallbackEmail: 'support@yourcompany.com'
+    }}>
       {/* Default SubscriptionHub */}
       <SubscriptionHub sessionId={sessionId} />
       
