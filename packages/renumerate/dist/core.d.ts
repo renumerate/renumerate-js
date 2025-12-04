@@ -34,7 +34,7 @@ export declare class Renumerate {
     /**
      * Update the configuration of the Renumerate instance
      */
-    updateConfig(config: RenumerateConfig): void;
+    updateConfig(config: Partial<RenumerateConfig>): void;
     /**
      * Mount a cancel button for a subscriber
      * @param elementId Element ID to mount the button
@@ -47,6 +47,10 @@ export declare class Renumerate {
      * @param sessionId Mandatory customer session identifier
      */
     showRetentionView(sessionId: string, callbacks?: CallbackOptions): HTMLDialogElement;
+    /**
+     * Private: Show error content when retention iframe fails to load
+     */
+    private showRetentionError;
     /**
      * Mount the SubscriptionHub for a customer
      * @param elementId
@@ -74,6 +78,10 @@ export declare class Renumerate {
      */
     cleanup(): void;
     /**
+     * Private: Show error content when subscription hub iframe fails to load
+     */
+    private showSubscriptionHubError;
+    /**
      * Private: Check if the sessionId is of a specific type
      * @param sessionId The session ID to check
      * @param type The type to check against ("retention" or "subscription")
@@ -100,6 +108,7 @@ export declare interface RenumerateConfig {
     publicKey: string;
     debug?: boolean;
     callbacks?: CallbackOptions;
+    fallbackEmail?: string;
 }
 
 export { }

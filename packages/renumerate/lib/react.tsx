@@ -145,6 +145,7 @@ export function SubscriptionHub({
 				title="SubscriptionHub"
 				src={context.instance.getSubscriptionHubUrl(sessionId)}
 				allow="publickey-credentials-get"
+				data-renumerate-subhub="true"
 			/>
 		</div>
 	);

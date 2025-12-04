@@ -27,6 +27,7 @@ export interface RenumerateConfig {
 	publicKey: string;
 	debug?: boolean;
 	callbacks?: CallbackOptions;
+	fallbackEmail?: string;
 }
 
 export interface EventData {
@@ -88,8 +89,15 @@ export class Renumerate {
 	/**
 	 * Update the configuration of the Renumerate instance
 	 */
-	updateConfig(config: RenumerateConfig) {
-		this.config = config;
+	updateConfig(config: Partial<RenumerateConfig>) {
+		this.config = {
+			...this.config,
+			...config,
+		};
+
+		if (this.config.debug) {
+			console.info("Config updated:", this.config);
+		}
 	}
 
 	/**
@@ -183,6 +191,19 @@ export class Renumerate {
 			sessionId: sessionId,
 		});
 
+		const timeoutId = setTimeout(() => {
+			if (this.config.debug) {
+				console.warn("Retention iframe timed out after 10 seconds");
+			}
+			if (this.retentionIframe) {
+				this.showRetentionError(content, this.retentionIframe);
+			}
+		}, 10000);
+
+		this.retentionIframe.addEventListener("load", () => {
+			clearTimeout(timeoutId);
+		});
+
 		content.appendChild(this.retentionIframe);
 		this.retentionDialog.appendChild(content);
 
@@ -197,6 +218,7 @@ export class Renumerate {
 
 		// Teardown
 		this.retentionDialog.addEventListener("close", () => {
+			clearTimeout(timeoutId);
 			this.activeCallbacks.onComplete?.();
 			this.activeCallbacks = {};
 
@@ -232,6 +254,40 @@ export class Renumerate {
 		});
 
 		return this.retentionDialog;
+	}
+
+	/**
+	 * Private: Show error content when retention iframe fails to load
+	 */
+	private showRetentionError(
+		content: HTMLDivElement,
+		iframe: HTMLIFrameElement,
+	) {
+		if (this.config.debug) {
+			console.warn("Retention iframe failed to load, showing fallback content");
+		}
+
+		if (content.querySelector(".renumerate-error-content")) {
+			return;
+		}
+
+		iframe.style.display = "none";
+
+		const errorDiv = document.createElement("div");
+		errorDiv.className = "renumerate-error-content";
+
+		const { fallbackEmail } = this.config;
+		errorDiv.innerHTML = `
+			<h2>We're sorry!</h2>
+			<p>We're having trouble loading the cancellation form.</p>
+			${
+				fallbackEmail
+					? `<p>Please email us at <a href="mailto:${fallbackEmail}">${fallbackEmail}</a> to cancel your subscription.</p>`
+					: "<p>Please contact support to cancel your subscription.</p>"
+			}
+		`;
+
+		content.appendChild(errorDiv);
 	}
 
 	/**
@@ -283,6 +339,7 @@ export class Renumerate {
 			iframeClasses || "renumerate-subscription-hub-iframe";
 		this.subscriptionIframe.title = "SubscriptionHub";
 		this.subscriptionIframe.setAttribute("allow", "publickey-credentials-get");
+		this.subscriptionIframe.setAttribute("data-renumerate-subhub", "true");
 
 		container.appendChild(this.subscriptionIframe);
 
@@ -352,6 +409,33 @@ export class Renumerate {
 		}
 	}
 
+	/**
+	 * Private: Show error content when subscription hub iframe fails to load
+	 */
+	private showSubscriptionHubError(
+		container: HTMLElement,
+		iframe: HTMLIFrameElement,
+	) {
+		if (this.config.debug) {
+			console.warn(
+				"Subscription hub iframe failed to load, showing fallback content",
+			);
+		}
+
+		iframe.style.display = "none";
+
+		const errorDiv = document.createElement("div");
+		errorDiv.className = "renumerate-error-content";
+
+		errorDiv.innerHTML = `
+            <h2>We're sorry!</h2>
+            <p>We're having trouble loading your subscription information.</p>
+			<p>We've been notified and we'll have this right up again shortly! In the meantime contact support for any urgent issues</p>
+        `;
+
+		container.appendChild(errorDiv);
+	}
+
 	/* Private functions */
 
 	/**
@@ -391,7 +475,6 @@ export class Renumerate {
 		}
 
 		this.styleSheet = document.createElement("style");
-		this.styleSheet.type = "text/css";
 		this.styleSheet.setAttribute("data-renumerate-dialog-styles", "true");
 
 		this.styleSheet.innerHTML = `
@@ -407,108 +490,149 @@ export class Renumerate {
 				width: 100%;
 			}
 
-			.renumerate-dialog {
-				position: fixed;
-				margin: 0 auto;
-				width: 412px;
-				max-width: 90%;
-				height: 100%;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				justify-content: center;
-				background-color: transparent;
-				color: #f0f0f0;
-				border: none;
-				border-radius: 8px;
-				padding: 0;
-			}
+            .renumerate-dialog {
+                position: fixed;
+                margin: 0 auto;
+                width: 412px;
+                max-width: 90%;
+                height: 100%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                background-color: transparent;
+                color: #f0f0f0;
+                border: none;
+                border-radius: 8px;
+                padding: 0;
+            }
 
-			.renumerate-dialog::backdrop {
-				background-color: rgba(0, 0, 0, 0.40);
-			}
+            .renumerate-dialog::backdrop {
+                background-color: rgba(0, 0, 0, 0.40);
+            }
 
-			.renumerate-dialog-close {
-				position: absolute;
-				top: 16px;
-				right: 25px;
-				background: none;
-				border: none;
-				font-size: 32px;
-				font-weight: 30;
-				line-height: 1;
-				color: #666;
-				cursor: pointer;
-				z-index: 1000;
-			}
+            .renumerate-dialog-close {
+                position: absolute;
+                top: 16px;
+                right: 25px;
+                background: none;
+                border: none;
+                font-size: 32px;
+                font-weight: 30;
+                line-height: 1;
+                color: #666;
+                cursor: pointer;
+                z-index: 1000;
+            }
 
-			.renumerate-dialog-close:hover {
-				color: #000;
-			}
+            .renumerate-dialog-close:hover {
+                color: #000;
+            }
 
-			.renumerate-dialog-content {
-				position: relative;
-				display: flex;
-				flex-direction: column;
-				overflow: hidden;
-				justify-content: center;
-				align-items: center;
-				border-radius: 8px;
-				background-color: #fcfbf9;
-				box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
-				min-width: 412px;
-			}
+            .renumerate-dialog-content {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+                justify-content: center;
+                align-items: center;
+                border-radius: 8px;
+                background-color: #fcfbf9;
+                box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+                min-width: 412px;
+            }
 
-			.renumerate-dialog-content iframe {
-				width: 100%;
-				height: 100%;
-				min-height: 304px;
-				min-width: 412x;
-				border: none;
-				margin: 0;
-				padding: 0;
-				flex-grow: 1;
-				transition: all 0.3s ease-in-out;
-			}
+            .renumerate-dialog-content iframe {
+                width: 100%;
+                height: 100%;
+                min-height: 304px;
+                min-width: 412x;
+                border: none;
+                margin: 0;
+                padding: 0;
+                flex-grow: 1;
+                transition: all 0.3s ease-in-out;
+            }
 
-			@media screen and (max-width: 1024px) {
-				.renumerate-dialog {
-					width: 90vw;
-					min-width: 600px;
-				}
+            .renumerate-error-content {
+                padding: 40px;
+                text-align: center;
+                color: #18181b;
+            }
 
-				.renumerate-dialog-content {
-					min-width: 400px;
-				}	
-			}
+            .renumerate-error-content h2 {
+                margin: 0 0 16px 0;
+                font-size: 24px;
+                font-weight: 600;
+                color: #18181b;
+            }
 
-			@media screen and (max-width: 768px) {
-				.renumerate-dialog-content {
-					padding: 5px;
-					width: 90vw;
-					max-height: 90vh;
-				}
-			}
+            .renumerate-error-content p {
+                margin: 12px 0;
+                font-size: 16px;
+                line-height: 1.5;
+                color: #52525b;
+            }
 
-			@media screen and (max-width: 480px) {
-					.renumerate-dialog {
-						min-width: 100vw;
-						min-height: 100vh;
-						padding: 12px;
-					}
+            .renumerate-error-content a {
+                color: #2563eb;
+                text-decoration: none;
+            }
 
-					.renumerate-dialog-content {
-						min-width: 100%;
-						min-height: 100%;
-					}
+            .renumerate-error-content a:hover {
+                text-decoration: underline;
+            }
 
-					.renumerate-dialog-close {
-						font-size: 40px;
-						top: 20px;
-						right: 20px;
-						font-weight: 200;
-					}
-			}
+            @media screen and (max-width: 1024px) {
+                .renumerate-dialog {
+                    width: 90vw;
+                    min-width: 600px;
+                }
+
+                .renumerate-dialog-content {
+                    min-width: 400px;
+                }	
+            }
+
+            @media screen and (max-width: 768px) {
+                .renumerate-dialog-content {
+                    padding: 5px;
+                    width: 90vw;
+                    max-height: 90vh;
+                }
+            }
+
+            @media screen and (max-width: 480px) {
+                    .renumerate-dialog {
+                        min-width: 100vw;
+                        min-height: 100vh;
+                        padding: 12px;
+                    }
+
+                    .renumerate-dialog-content {
+                        min-width: 100%;
+                        min-height: 100%;
+                    }
+
+                    .renumerate-dialog-close {
+                        font-size: 40px;
+                        top: 20px;
+                        right: 20px;
+                        font-weight: 200;
+                    }
+
+                    .renumerate-error-content {
+                        padding: 20px;
+                    }
+
+                    .renumerate-error-content h2 {
+                        font-size: 20px;
+                    }
+
+                    .renumerate-error-content p {
+                        font-size: 14px;
+                    }
+            }
 
       .renumerate-cancel-btn {
         display: inline-flex;
@@ -561,15 +685,51 @@ export class Renumerate {
 				: ["https://retention.renumerate.com", "https://subs.renumerate.com"];
 
 			if (!allowedOrigins.includes(event.origin)) {
-				console.warn(
-					"Received message from unauthorized origin:",
-					event.origin,
-				);
+				if (this.config.debug) {
+					console.warn(
+						"Received message from unauthorized origin:",
+						event.origin,
+					);
+				}
 				return;
 			}
 
 			const { type, data } = event.data;
 			switch (type) {
+				case "catastrophic-failure": {
+					if (this.config.debug) {
+						console.error(
+							"Received catastrophic-failure from iframe:",
+							data.iframe,
+						);
+					}
+
+					if (
+						data.iframe === "retention" &&
+						this.retentionDialog &&
+						this.retentionIframe
+					) {
+						const content = this.retentionDialog.querySelector(
+							".renumerate-dialog-content",
+						) as HTMLDivElement;
+						if (content) {
+							this.showRetentionError(content, this.retentionIframe);
+						}
+					}
+
+					const subIframe = document.querySelector(
+						'[data-renumerate-subhub="true"]',
+					) as HTMLIFrameElement | null;
+
+					if (data.iframe === "subscription" && subIframe) {
+						const container = subIframe.parentElement;
+						if (container) {
+							this.showSubscriptionHubError(container, subIframe);
+						}
+					}
+					return;
+				}
+
 				case "cancel-subscription": {
 					this.showRetentionView(data.sessionId, this.activeCallbacks);
 					return;
@@ -577,9 +737,9 @@ export class Renumerate {
 
 				case "resize": {
 					const targetIframe =
-						data.iframe === "subhub"
+						data.iframe === "subscription"
 							? (document.querySelector(
-									".renumerate-subscription-hub-iframe",
+									'[data-renumerate-subhub="true"]',
 								) as HTMLIFrameElement)
 							: this.retentionIframe;
 
@@ -617,7 +777,9 @@ export class Renumerate {
 				}
 
 				default: {
-					console.warn(`Unknown message type: ${type}`);
+					if (this.config.debug) {
+						console.warn(`Unknown message type: ${type}`);
+					}
 				}
 			}
 		};
