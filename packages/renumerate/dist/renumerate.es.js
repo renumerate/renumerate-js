@@ -151,7 +151,10 @@ class f {
     const s = document.getElementById(e);
     if (!s)
       throw new Error(`Element with id ${e} not found`);
-    return s.appendChild(o), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = i || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", this.subscriptionIframe.setAttribute("allow", "publickey-credentials-get"), this.subscriptionIframe.setAttribute("data-renumerate-subhub", "true"), o.appendChild(this.subscriptionIframe), o;
+    return s.appendChild(o), this.subscriptionIframe = document.createElement("iframe"), this.subscriptionIframe.src = this.getSubscriptionHubUrl(t), this.subscriptionIframe.className = i || "renumerate-subscription-hub-iframe", this.subscriptionIframe.title = "SubscriptionHub", this.subscriptionIframe.setAttribute(
+      "allow",
+      "publickey-credentials-get; payment"
+    ), this.subscriptionIframe.setAttribute("data-renumerate-subhub", "true"), o.appendChild(this.subscriptionIframe), o;
   }
   /**
    * Get subscription hub url
