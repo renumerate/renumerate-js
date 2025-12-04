@@ -93,7 +93,10 @@ function MyComponent() {
   // The "Generating a Retention Session Id" section will show you how
 
   return (
-    <RenumerateProvider config={{ publicKey: 'your-public-key' }}>
+    <RenumerateProvider config={{
+      publicKey: 'your-public-key',
+      fallbackEmail: 'support@yourcompany.com'
+    }}>
         {/* Default styled cancel button */}
         <CancelButton sessionId={sessionId} />
         
@@ -151,7 +154,10 @@ function App() {
   const sessionId = "ret_example123";
 
   return (
-    <RenumerateProvider config={{ publicKey: 'your-public-key' }}>
+    <RenumerateProvider config={{
+      publicKey: 'your-public-key',
+      fallbackEmail: 'support@yourcompany.com'
+    }}>
       <CustomCancelComponent sessionId={sessionId} />
     </RenumerateProvider>
   );
