@@ -144,6 +144,7 @@ export function SubscriptionHub({
 				className={iframeClassName || "renumerate-subscription-hub-iframe"}
 				title="SubscriptionHub"
 				src={context.instance.getSubscriptionHubUrl(sessionId)}
+				allow="publickey-credentials-get"
 			/>
 		</div>
 	);
