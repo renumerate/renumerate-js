@@ -85,21 +85,21 @@ class p {
       target: "retention",
       sessionId: e
     }), n.appendChild(this.retentionIframe), this.retentionDialog.appendChild(n), n.prepend(i), document.body.appendChild(this.retentionDialog), this.retentionDialog.showModal(), i.blur(), this.retentionDialog.addEventListener("close", () => {
-      var r, c, d, h;
-      (c = (r = this.activeCallbacks).onComplete) == null || c.call(r), this.activeCallbacks = {};
+      var r, h, d, u;
+      (h = (r = this.activeCallbacks).onComplete) == null || h.call(r), this.activeCallbacks = {};
       const o = this.getIsLocal() ? "https://localhost:4321" : "https://subs.renumerate.com";
       try {
-        Array.from(document.getElementsByTagName("iframe")).forEach((m) => {
-          const g = m.getAttribute("src") || "";
-          (g.includes("subs.renumerate.com") || g.includes("localhost:4321/subs")) && m.contentWindow && m.contentWindow.postMessage(
+        Array.from(document.getElementsByTagName("iframe")).forEach((c) => {
+          const g = c.getAttribute("src") || "";
+          (g.includes("subs.renumerate.com") || g.includes("localhost:4321/subs")) && c.contentWindow && c.contentWindow.postMessage(
             { type: "on-complete", data: {} },
             o
           );
         });
-      } catch (u) {
-        (d = this.config) != null && d.debug && console.warn("Error sending on-complete to iframes:", u);
+      } catch (m) {
+        (d = this.config) != null && d.debug && console.warn("Error sending on-complete to iframes:", m);
       } finally {
-        (h = this.retentionDialog) == null || h.remove();
+        (u = this.retentionDialog) == null || u.remove();
       }
     }), this.retentionDialog;
   }
@@ -186,12 +186,14 @@ class p {
     }
     this.styleSheet = document.createElement("style"), this.styleSheet.type = "text/css", this.styleSheet.setAttribute("data-renumerate-dialog-styles", "true"), this.styleSheet.innerHTML = `
 			.renumerate-subscription-hub {
-				height: 400px;
+				height: max-content;
+				min-height: 400px;
 				width: 100%;
 			}
 
 			.renumerate-subscription-hub-iframe {
-				height: 400px;
+				height: max-content;
+				min-height: 400px;
 				width: 100%;
 			}
 
@@ -333,7 +335,7 @@ class p {
    */
   addListener() {
     this.config.debug && console.info("Adding message listener for Renumerate"), this.windowListener = (e) => {
-      var o, r, c, d, h, u;
+      var o, r, h, d, u, m;
       if (this.config.debug && console.info("Received message:", e.data), !(this.getIsLocal() ? ["https://localhost:4321"] : ["https://retention.renumerate.com", "https://subs.renumerate.com"]).includes(e.origin)) {
         console.warn(
           "Received message from unauthorized origin:",
@@ -348,7 +350,10 @@ class p {
           return;
         }
         case "resize": {
-          this.retentionIframe && s.height && typeof s.height == "number" && s.height > 0 && (this.retentionIframe.style.height = `${s.height}px`);
+          const c = s.iframe === "subhub" ? document.querySelector(
+            ".renumerate-subscription-hub-iframe"
+          ) : this.retentionIframe;
+          c && s.height && typeof s.height == "number" && s.height > 0 && (c.style.height = `${s.height}px`);
           return;
         }
         case "close-dialog": {
@@ -360,11 +365,11 @@ class p {
           return;
         }
         case "on-retained": {
-          (d = (c = this.activeCallbacks).onRetained) == null || d.call(c);
+          (d = (h = this.activeCallbacks).onRetained) == null || d.call(h);
           return;
         }
         case "on-cancelled": {
-          (u = (h = this.activeCallbacks).onCancelled) == null || u.call(h);
+          (m = (u = this.activeCallbacks).onCancelled) == null || m.call(u);
           return;
         }
         default:
