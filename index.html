@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + TS</title>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script type="module" src="/lib/main.ts"></script>
+    <script>
+        window.RENUMERATE_LOCAL = true;
+    </script>
+    <div
+      class="container p-4 mx-auto bg-gray-100 rounded-lg flex flex-col gap-8"
+    >
+      <h1 class="text-3xl font-bold">Retention</h1>
+
+      <div class="w-full">
+        <input type="text" id="retention_session_id" placeholder="RetentionSessionID" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      </div>
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        id="mount_subscription_hub"
+        onclick="renumerate.mountCancelButton('cancel_button', document.getElementById('retention_session_id').value, { 
+          onComplete: () => console.log('Retention flow completed!'),
+          onRetained: () => console.log('Customer was retained!'),
+          onCancelled: () => console.log('Customer cancelled subscription!')
+        })"        
+      >
+        Load
+      </button>
+
+      <div class="flex flex-col justify-center gap-4">
+        <h2 class="text-lg font-bold">showRetentionView</h2>
+        <button
+          class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          id="cancel"
+          onclick="renumerate.showRetentionView(document.getElementById('retention_session_id').value, { 
+        fallbackEmail: 'support@example.com'})"
+        >
+          Cancel
+        </button>
+      </div>
+
+      <div class="flex flex-col justify-center gap-4">
+        <h2 class="text-lg font-bold">mountCancelButton</h2>
+        <div id="cancel_button"></div>
+      </div>
+
+    </div>
+    <div
+      class="container p-4 mx-auto bg-gray-100 rounded-lg flex flex-col gap-8 mt-8"
+    >
+      <h1 class="text-3xl font-bold">Subscriptions</h1>
+      
+      <div class="w-full">
+        <input type="text" id="subscription_session_id" placeholder="SubscriptionSessionID" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      </div>
+      <button
+        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        id="mount_subscription_hub"
+        onclick="renumerate.mountSubscriptionHub('subscription_hub', document.getElementById('subscription_session_id').value, 'h-[400px] w-full', 'h-[400px] w-full')"
+      >
+        Load
+      </button>
+
+      <div class="flex flex-col justify-center gap-4">
+        <h1 class="text-lg font-bold">mountSubscriptionHub</h1>
+        <div class="p-4 bg-gray-200 rounded-lg">
+          <div id="subscription_hub"></div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module">
+      import { Renumerate } from "./lib/main";
+
+      const renumerate = new Renumerate({
+        public_key: "test",
+        debug: true,
+      });
+
+      window.renumerate = renumerate;
+    </script>
+
+    <div id="react-root"></div>
+    <script type="module">
+      import React from 'https://esm.sh/react@18';
+      import ReactDOM from 'https://esm.sh/react-dom@18/client';
+      import { RenumerateProvider, CancelButton, SubscriptionHub, useRenumerate } from './dist/react/index.es.js';
+      
+      window.React = React;
+      window.ReactDOM = ReactDOM;
+      window.RenumerateComponents = {
+        RenumerateProvider, 
+        CancelButton, 
+        SubscriptionHub, 
+        useRenumerate
+      };
+    </script>
+    <script type="module" src="./test.tsx"></script>
+  </body>
+</html>
