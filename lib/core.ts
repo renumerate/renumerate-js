@@ -1,11 +1,16 @@
+import { SessionManager, type SdkSession } from "./session";
+
 // Private interface
 interface Window {
 	RENUMERATE_LOCAL?: boolean;
 	RENUMERATE_INSTANCE?: Renumerate;
 }
 
+// Re-export for external use
+export type { SdkSession };
+
 type UrlBuildParams =
-	| { target: "retention"; sessionId: string }
+	| { target: "retention"; sessionId: string; subscriptionId?: string }
 	| { target: "subscription"; sessionId: string }
 	| { target: "event" };
 
@@ -17,6 +22,7 @@ export interface CallbackOptions {
 
 interface MountCancelButtonOptions {
 	classes?: string;
+	subscriptionId?: string;
 	onComplete?: () => void;
 	onRetained?: () => void;
 	onCancelled?: () => void;
@@ -28,10 +34,19 @@ export interface RenumerateConfig {
 	debug?: boolean;
 	callbacks?: CallbackOptions;
 	fallbackEmail?: string;
+	// Returns a signed auth token from your backend - called when session needed/expired
+	getAuthToken: () => Promise<string>;
 }
 
 export interface EventData {
 	[key: string]: string | number | boolean;
+}
+
+/**
+ * Validate that a session ID is in the expected r10_ format
+ */
+function isValidSessionId(sessionId: string): boolean {
+	return sessionId.startsWith("r10_");
 }
 
 export class Renumerate {
@@ -42,13 +57,17 @@ export class Renumerate {
 	private styleSheet: HTMLStyleElement | null = null;
 	private windowListener: ((event: MessageEvent) => void) | null = null;
 	private activeCallbacks: CallbackOptions = {};
+	private sessionManager: SessionManager;
 
 	constructor(config: RenumerateConfig) {
 		this.config = config;
+		this.sessionManager = new SessionManager(
+			config.getAuthToken,
+			config.debug ?? false,
+		);
 
 		// In contexts where `window` is not defined (e.g., server-side rendering),
 		// we do not want to execute any code that relies on the DOM.
-		// This is a safeguard to prevent errors in environments like Next.js or Gatsby.
 		if (typeof window === "undefined") {
 			return;
 		}
@@ -56,6 +75,9 @@ export class Renumerate {
 		this.initialize();
 	}
 
+	/**
+	 * Set active callbacks for event handling
+	 */
 	setCallbacks(callbacks?: CallbackOptions) {
 		this.activeCallbacks = {
 			...this.config.callbacks,
@@ -64,9 +86,14 @@ export class Renumerate {
 	}
 
 	/**
+	 * Force refresh the session (perform token exchange)
+	 */
+	async refreshSession(): Promise<SdkSession> {
+		return this.sessionManager.refreshSession();
+	}
+
+	/**
 	 * Get or create a Renumerate instance
-	 * @param config Configuration for the Renumerate instance
-	 * @returns Renumerate instance
 	 */
 	public static getInstance(config: RenumerateConfig): Renumerate {
 		if (typeof window === "undefined") {
@@ -95,20 +122,41 @@ export class Renumerate {
 			...config,
 		};
 
+		if (config.getAuthToken) {
+			this.sessionManager.updateGetAuthToken(config.getAuthToken);
+		}
+
 		if (this.config.debug) {
 			console.info("Config updated:", this.config);
 		}
 	}
 
 	/**
-	 * Mount a cancel button for a subscriber
-	 * @param elementId Element ID to mount the button
-	 * @param sessionId Mandatory customer session identifier
-	 * @param options Options object or classes string
+	 * Get current SDK session (establishes session if needed)
+	 */
+	async getSession(): Promise<SdkSession> {
+		return this.sessionManager.getSession();
+	}
+
+	/**
+	 * Get current session without fetching (returns null if not established)
+	 */
+	getCurrentSession(): SdkSession | null {
+		return this.sessionManager.getCurrentSession();
+	}
+
+	/**
+	 * Clear the current session
+	 */
+	clearSession(): void {
+		this.sessionManager.clearSession();
+	}
+
+	/**
+	 * Mount a cancel button that opens retention view when clicked
 	 */
 	mountCancelButton(
 		elementId: string,
-		sessionId: string,
 		options?: MountCancelButtonOptions | string,
 	) {
 		let finalOptions: MountCancelButtonOptions = {};
@@ -119,12 +167,6 @@ export class Renumerate {
 			finalOptions = options;
 		}
 
-		if (!this.isSessionType(sessionId, "retention")) {
-			throw new Error(
-				`Invalid sessionId: ${sessionId}. Expected a retention session ID.`,
-			);
-		}
-
 		const button = document.createElement("button");
 		button.textContent = "Cancel Subscription";
 		button.addEventListener("click", () => {
@@ -133,7 +175,7 @@ export class Renumerate {
 				onRetained: finalOptions.onRetained,
 				onCancelled: finalOptions.onCancelled,
 			};
-			this.showRetentionView(sessionId, callbacks);
+			this.showRetentionView(finalOptions.subscriptionId, callbacks);
 		});
 
 		if (finalOptions.classes) {
@@ -150,26 +192,137 @@ export class Renumerate {
 	}
 
 	/**
-	 * Show retention view for a customer
-	 * @param sessionId Mandatory customer session identifier
+	 * Show retention view (cancellation flow)
+	 * @param subscriptionId Optional - if undefined, uses first active subscription
+	 * @param callbacks Optional callbacks for retention events
 	 */
-	showRetentionView(sessionId: string, callbacks?: CallbackOptions) {
+	async showRetentionView(subscriptionId?: string, callbacks?: CallbackOptions) {
 		this.setCallbacks(callbacks);
 
-		// Validate sessionId
-		if (
-			!this.isSessionType(sessionId, "retention") &&
-			!this.isSessionType(sessionId, "subscription")
-		) {
+		// Get session (establishes if needed)
+		const session = await this.getSession();
+		this.openRetentionDialog(session.sessionId, subscriptionId);
+	}
+
+	/**
+	 * Mount the SubscriptionHub
+	 */
+	async mountSubscriptionHub(
+		elementId: string,
+		wrapperClasses = "",
+		iframeClasses = "",
+		callbacks?: CallbackOptions,
+	): Promise<HTMLElement> {
+		// Get session (establishes if needed)
+		const session = await this.getSession();
+
+		if (callbacks) {
+			this.activeCallbacks = {
+				...this.config.callbacks,
+				...callbacks,
+			};
+		}
+
+		const container = document.createElement("div");
+		container.className = wrapperClasses || "renumerate-subscription-hub";
+
+		const parent = document.getElementById(elementId);
+		if (!parent) {
+			throw new Error(`Element with id ${elementId} not found`);
+		}
+		parent.appendChild(container);
+
+		this.subscriptionIframe = document.createElement("iframe");
+		this.subscriptionIframe.src = this.buildUrl({
+			target: "subscription",
+			sessionId: session.sessionId,
+		});
+		this.subscriptionIframe.className =
+			iframeClasses || "renumerate-subscription-hub-iframe";
+		this.subscriptionIframe.title = "SubscriptionHub";
+		this.subscriptionIframe.setAttribute(
+			"allow",
+			"publickey-credentials-get; payment",
+		);
+		this.subscriptionIframe.setAttribute("data-renumerate-subhub", "true");
+
+		container.appendChild(this.subscriptionIframe);
+
+		return container;
+	}
+
+	/**
+	 * Get subscription hub URL
+	 */
+	async getSubscriptionHubUrl(): Promise<string> {
+		const session = await this.getSession();
+		return this.buildUrl({
+			target: "subscription",
+			sessionId: session.sessionId,
+		});
+	}
+
+	/**
+	 * Set up the Renumerate instance
+	 */
+	initialize() {
+		if (this.config.debug) {
+			console.info("Renumerate initialized with config:", this.config);
+		}
+
+		this.injectStylesheet();
+		this.addListener();
+	}
+
+	/**
+	 * Unmount renumerate components and clean up resources
+	 */
+	cleanup() {
+		if (this.config.debug) {
+			console.info("Renumerate cleaned up with config:", this.config);
+		}
+
+		if (this.retentionDialog) {
+			this.retentionDialog.remove();
+			this.retentionDialog = null;
+		}
+
+		if (this.retentionIframe) {
+			this.retentionIframe.remove();
+			this.retentionIframe = null;
+		}
+
+		if (this.subscriptionIframe) {
+			this.subscriptionIframe.remove();
+			this.subscriptionIframe = null;
+		}
+
+		if (this.styleSheet) {
+			this.styleSheet.remove();
+			this.styleSheet = null;
+		}
+
+		if (this.windowListener) {
+			window.removeEventListener("message", this.windowListener);
+			this.windowListener = null;
+		}
+	}
+
+	/* Private functions */
+
+	/**
+	 * Private: Open retention dialog with session ID
+	 */
+	private openRetentionDialog(sessionId: string, subscriptionId?: string) {
+		if (!isValidSessionId(sessionId)) {
 			throw new Error(
-				`Invalid sessionId: ${sessionId}. Expected a retention or subscription session ID.`,
+				`Invalid session ID format. Expected r10_ prefix, got: ${sessionId}`,
 			);
 		}
 
 		this.retentionDialog = document.createElement("dialog");
 		this.retentionDialog.className = "renumerate-dialog";
 
-		// Create close button
 		const closeButton = document.createElement("button");
 		closeButton.className = "renumerate-dialog-close";
 		closeButton.innerHTML = "&times;";
@@ -177,18 +330,17 @@ export class Renumerate {
 		this.retentionDialog.appendChild(closeButton);
 
 		closeButton.addEventListener("click", () => {
-			// We can be reasonably sure that the dialog is not null here
 			this.retentionDialog?.close();
 		});
 
-		// Create the content
 		const content = document.createElement("div");
 		content.className = "renumerate-dialog-content";
 
 		this.retentionIframe = document.createElement("iframe");
 		this.retentionIframe.src = this.buildUrl({
 			target: "retention",
-			sessionId: sessionId,
+			sessionId,
+			subscriptionId,
 		});
 
 		const timeoutId = setTimeout(() => {
@@ -206,17 +358,12 @@ export class Renumerate {
 
 		content.appendChild(this.retentionIframe);
 		this.retentionDialog.appendChild(content);
-
-		// Move the close button to inside the content
 		content.prepend(closeButton);
 
 		document.body.appendChild(this.retentionDialog);
 		this.retentionDialog.showModal();
-
-		// Blur the close button so it is not focused by default
 		closeButton.blur();
 
-		// Teardown
 		this.retentionDialog.addEventListener("close", () => {
 			clearTimeout(timeoutId);
 			this.activeCallbacks.onComplete?.();
@@ -228,9 +375,8 @@ export class Renumerate {
 				: "https://subs.renumerate.com";
 
 			try {
-				// Sends on-complete to any iframe that looks like a SubscriptionHub
 				const allIframes = Array.from(document.getElementsByTagName("iframe"));
-				allIframes.forEach((iframe) => {
+				for (const iframe of allIframes) {
 					const srcAttr = iframe.getAttribute("src") || "";
 					if (
 						srcAttr.includes("subs.renumerate.com") ||
@@ -243,7 +389,7 @@ export class Renumerate {
 							);
 						}
 					}
-				});
+				}
 			} catch (err) {
 				if (this.config?.debug) {
 					console.warn("Error sending on-complete to iframes:", err);
@@ -291,128 +437,6 @@ export class Renumerate {
 	}
 
 	/**
-	 * Mount the SubscriptionHub for a customer
-	 * @param elementId
-	 * @param sessionId
-	 * @param wrapperClasses
-	 * @param iframeClasses
-	 * @param callbacks Optional callbacks for subscription events
-	 * @returns
-	 */
-	mountSubscriptionHub(
-		elementId: string,
-		sessionId: string,
-		wrapperClasses: string = "",
-		iframeClasses: string = "",
-		callbacks?: {
-			onComplete?: () => void;
-			onRetained?: () => void;
-			onCancelled?: () => void;
-		},
-	): HTMLElement {
-		// Validate sessionId
-		if (!this.isSessionType(sessionId, "subscription")) {
-			throw new Error(
-				`Invalid sessionId: ${sessionId}. Expected a subscription session ID.`,
-			);
-		}
-
-		if (callbacks) {
-			this.activeCallbacks = {
-				...this.config.callbacks,
-				...callbacks,
-			};
-		}
-
-		const container = document.createElement("div");
-		container.className = wrapperClasses || "renumerate-subscription-hub";
-
-		const parent = document.getElementById(elementId);
-		if (!parent) {
-			throw new Error(`Element with id ${elementId} not found`);
-		}
-		parent.appendChild(container);
-
-		this.subscriptionIframe = document.createElement("iframe");
-		this.subscriptionIframe.src = this.getSubscriptionHubUrl(sessionId);
-		this.subscriptionIframe.className =
-			iframeClasses || "renumerate-subscription-hub-iframe";
-		this.subscriptionIframe.title = "SubscriptionHub";
-		this.subscriptionIframe.setAttribute(
-			"allow",
-			"publickey-credentials-get; payment",
-		);
-		this.subscriptionIframe.setAttribute("data-renumerate-subhub", "true");
-
-		container.appendChild(this.subscriptionIframe);
-
-		return container;
-	}
-
-	/**
-	 * Get subscription hub url
-	 */
-	getSubscriptionHubUrl(sessionId: string): string {
-		if (!this.isSessionType(sessionId, "subscription")) {
-			throw new Error(
-				`Invalid sessionId: ${sessionId}. Expected a subscription session ID.`,
-			);
-		}
-		return this.buildUrl({
-			target: "subscription",
-			sessionId: sessionId,
-		});
-	}
-
-	/**
-	 * Set up the Renumerate instance
-	 */
-	initialize() {
-		if (this.config.debug) {
-			console.info("Renumerate initialized with config:", this.config);
-		}
-
-		this.injectStylesheet();
-		this.addListener();
-	}
-
-	/**
-	 * Unmount renumerate components and clean up resources
-	 */
-	cleanup() {
-		if (this.config.debug) {
-			console.info("Renumerate cleaned up with config:", this.config);
-		}
-
-		// Clean up dialog and iframes
-		if (this.retentionDialog) {
-			this.retentionDialog.remove();
-			this.retentionDialog = null;
-		}
-
-		if (this.retentionIframe) {
-			this.retentionIframe.remove();
-			this.retentionIframe = null;
-		}
-
-		if (this.subscriptionIframe) {
-			this.subscriptionIframe.remove();
-			this.subscriptionIframe = null;
-		}
-
-		// Clean up styles
-		if (this.styleSheet) {
-			this.styleSheet.remove();
-			this.styleSheet = null;
-		}
-
-		if (this.windowListener) {
-			window.removeEventListener("message", this.windowListener);
-			this.windowListener = null;
-		}
-	}
-
-	/**
 	 * Private: Show error content when subscription hub iframe fails to load
 	 */
 	private showSubscriptionHubError(
@@ -437,25 +461,6 @@ export class Renumerate {
         `;
 
 		container.appendChild(errorDiv);
-	}
-
-	/* Private functions */
-
-	/**
-	 * Private: Check if the sessionId is of a specific type
-	 * @param sessionId The session ID to check
-	 * @param type The type to check against ("retention" or "subscription")
-	 * @returns True if the sessionId matches the type, false otherwise
-	 */
-	private isSessionType(sessionId: string, type: "retention" | "subscription") {
-		switch (type) {
-			case "retention":
-				return sessionId.startsWith("ret_");
-			case "subscription":
-				return sessionId.startsWith("sub_");
-			default:
-				throw new Error(`Unknown session type: ${type}`);
-		}
 	}
 
 	private getIsLocal(): boolean {
@@ -594,7 +599,7 @@ export class Renumerate {
 
                 .renumerate-dialog-content {
                     min-width: 400px;
-                }	
+                }
             }
 
             @media screen and (max-width: 768px) {
@@ -641,21 +646,21 @@ export class Renumerate {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        
+
         padding: 8px 16px;
         border-radius: 6px;
-        
+
         font-size: 14px;
         font-weight: 500;
-        
+
         background-color: #f4f4f5;
         color: #18181b;
         border: 1px solid #e4e4e7;
-        
+
         cursor: pointer;
         user-select: none;
-        
-        transition: 
+
+        transition:
             background-color 0.2s ease,
             border-color 0.2s ease,
             color 0.2s ease;
@@ -734,7 +739,13 @@ export class Renumerate {
 				}
 
 				case "cancel-subscription": {
-					this.showRetentionView(data.sessionId, this.activeCallbacks);
+					// Iframe sends session ID and optional subscription ID for retention flow
+					if (data.sessionId && isValidSessionId(data.sessionId)) {
+						this.setCallbacks(this.activeCallbacks);
+						this.openRetentionDialog(data.sessionId, data.subscriptionId);
+					} else if (this.config.debug) {
+						console.warn("Invalid session ID received from iframe:", data.sessionId);
+					}
 					return;
 				}
 
@@ -792,28 +803,28 @@ export class Renumerate {
 
 	/**
 	 * Private: Get the target URL
-	 * @param type The type of session ("retention" or "subscription")
 	 */
 	private buildUrl(params: UrlBuildParams): string {
 		const isLocal = this.getIsLocal();
 
-		const withSessionId = (url: string, sessionId: string) => {
-			return `${url}?session_id=${sessionId}`;
-		};
-
 		switch (params.target) {
 			case "retention": {
-				const url = isLocal
+				const baseUrl = isLocal
 					? "https://localhost:4321/retention"
 					: "https://retention.renumerate.com";
-				return withSessionId(url, params.sessionId);
+				const url = new URL(baseUrl);
+				url.searchParams.set("session_id", params.sessionId);
+				if (params.subscriptionId) {
+					url.searchParams.set("subscription_id", params.subscriptionId);
+				}
+				return url.toString();
 			}
 
 			case "subscription": {
-				const url = isLocal
+				const baseUrl = isLocal
 					? "https://localhost:4321/subs"
 					: "https://subs.renumerate.com";
-				return withSessionId(url, params.sessionId);
+				return `${baseUrl}?session_id=${params.sessionId}`;
 			}
 
 			case "event":

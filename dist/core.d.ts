@@ -10,6 +10,7 @@ export declare interface EventData {
 
 declare interface MountCancelButtonOptions {
     classes?: string;
+    subscriptionId?: string;
     onComplete?: () => void;
     onRetained?: () => void;
     onCancelled?: () => void;
@@ -23,12 +24,18 @@ export declare class Renumerate {
     private styleSheet;
     private windowListener;
     private activeCallbacks;
+    private sessionManager;
     constructor(config: RenumerateConfig);
+    /**
+     * Set active callbacks for event handling
+     */
     setCallbacks(callbacks?: CallbackOptions): void;
     /**
+     * Force refresh the session (perform token exchange)
+     */
+    refreshSession(): Promise<SdkSession>;
+    /**
      * Get or create a Renumerate instance
-     * @param config Configuration for the Renumerate instance
-     * @returns Renumerate instance
      */
     static getInstance(config: RenumerateConfig): Renumerate;
     /**
@@ -36,39 +43,35 @@ export declare class Renumerate {
      */
     updateConfig(config: Partial<RenumerateConfig>): void;
     /**
-     * Mount a cancel button for a subscriber
-     * @param elementId Element ID to mount the button
-     * @param sessionId Mandatory customer session identifier
-     * @param options Options object or classes string
+     * Get current SDK session (establishes session if needed)
      */
-    mountCancelButton(elementId: string, sessionId: string, options?: MountCancelButtonOptions | string): void;
+    getSession(): Promise<SdkSession>;
     /**
-     * Show retention view for a customer
-     * @param sessionId Mandatory customer session identifier
+     * Get current session without fetching (returns null if not established)
      */
-    showRetentionView(sessionId: string, callbacks?: CallbackOptions): HTMLDialogElement;
+    getCurrentSession(): SdkSession | null;
     /**
-     * Private: Show error content when retention iframe fails to load
+     * Clear the current session
      */
-    private showRetentionError;
+    clearSession(): void;
     /**
-     * Mount the SubscriptionHub for a customer
-     * @param elementId
-     * @param sessionId
-     * @param wrapperClasses
-     * @param iframeClasses
-     * @param callbacks Optional callbacks for subscription events
-     * @returns
+     * Mount a cancel button that opens retention view when clicked
      */
-    mountSubscriptionHub(elementId: string, sessionId: string, wrapperClasses?: string, iframeClasses?: string, callbacks?: {
-        onComplete?: () => void;
-        onRetained?: () => void;
-        onCancelled?: () => void;
-    }): HTMLElement;
+    mountCancelButton(elementId: string, options?: MountCancelButtonOptions | string): void;
     /**
-     * Get subscription hub url
+     * Show retention view (cancellation flow)
+     * @param subscriptionId Optional - if undefined, uses first active subscription
+     * @param callbacks Optional callbacks for retention events
      */
-    getSubscriptionHubUrl(sessionId: string): string;
+    showRetentionView(subscriptionId?: string, callbacks?: CallbackOptions): Promise<void>;
+    /**
+     * Mount the SubscriptionHub
+     */
+    mountSubscriptionHub(elementId: string, wrapperClasses?: string, iframeClasses?: string, callbacks?: CallbackOptions): Promise<HTMLElement>;
+    /**
+     * Get subscription hub URL
+     */
+    getSubscriptionHubUrl(): Promise<string>;
     /**
      * Set up the Renumerate instance
      */
@@ -78,16 +81,17 @@ export declare class Renumerate {
      */
     cleanup(): void;
     /**
+     * Private: Open retention dialog with session ID
+     */
+    private openRetentionDialog;
+    /**
+     * Private: Show error content when retention iframe fails to load
+     */
+    private showRetentionError;
+    /**
      * Private: Show error content when subscription hub iframe fails to load
      */
     private showSubscriptionHubError;
-    /**
-     * Private: Check if the sessionId is of a specific type
-     * @param sessionId The session ID to check
-     * @param type The type to check against ("retention" or "subscription")
-     * @returns True if the sessionId matches the type, false otherwise
-     */
-    private isSessionType;
     private getIsLocal;
     /**
      * Private: Inject the stylesheet into the document head
@@ -99,7 +103,6 @@ export declare class Renumerate {
     private addListener;
     /**
      * Private: Get the target URL
-     * @param type The type of session ("retention" or "subscription")
      */
     private buildUrl;
 }
@@ -109,6 +112,18 @@ export declare interface RenumerateConfig {
     debug?: boolean;
     callbacks?: CallbackOptions;
     fallbackEmail?: string;
+    getAuthToken: () => Promise<string>;
+}
+
+/**
+ * SDK Session management for unified authentication.
+ *
+ * Handles auth token exchange and session storage.
+ * Session IDs are prefixed with 'r10_' and stored in sessionStorage.
+ */
+export declare interface SdkSession {
+    sessionId: string;
+    expiresAt: number;
 }
 
 export { }
