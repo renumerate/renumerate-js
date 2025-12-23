@@ -4,10 +4,6 @@ export declare interface CallbackOptions {
     onCancelled?: () => void;
 }
 
-export declare interface EventData {
-    [key: string]: string | number | boolean;
-}
-
 declare interface MountCancelButtonOptions {
     classes?: string;
     subscriptionId?: string;
@@ -108,7 +104,6 @@ export declare class Renumerate {
 }
 
 export declare interface RenumerateConfig {
-    publicKey: string;
     debug?: boolean;
     callbacks?: CallbackOptions;
     fallbackEmail?: string;

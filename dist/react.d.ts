@@ -118,7 +118,6 @@ declare class Renumerate {
 }
 
 declare interface RenumerateConfig {
-    publicKey: string;
     debug?: boolean;
     callbacks?: CallbackOptions;
     fallbackEmail?: string;

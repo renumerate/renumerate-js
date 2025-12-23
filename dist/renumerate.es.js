@@ -625,10 +625,6 @@ class p {
       }
       case "subscription":
         return `${n ? "https://localhost:4321/subs" : "https://subs.renumerate.com"}?session_id=${e.sessionId}`;
-      case "event":
-        return n ? "https://localhost:4321/event/" : "https://api.renumerate.com/v1/events/";
-      default:
-        throw new Error(`Unknown type: ${e}`);
     }
   }
 }

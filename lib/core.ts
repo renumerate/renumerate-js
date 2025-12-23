@@ -11,8 +11,7 @@ export type { SdkSession };
 
 type UrlBuildParams =
 	| { target: "retention"; sessionId: string; subscriptionId?: string }
-	| { target: "subscription"; sessionId: string }
-	| { target: "event" };
+	| { target: "subscription"; sessionId: string };
 
 export interface CallbackOptions {
 	onComplete?: () => void;
@@ -30,16 +29,11 @@ interface MountCancelButtonOptions {
 
 // Public interface
 export interface RenumerateConfig {
-	publicKey: string;
 	debug?: boolean;
 	callbacks?: CallbackOptions;
 	fallbackEmail?: string;
-	// Returns a signed auth token from your backend - called when session needed/expired
+	// Returns a signed handshake token from your backend - called when session needed/expired
 	getAuthToken: () => Promise<string>;
-}
-
-export interface EventData {
-	[key: string]: string | number | boolean;
 }
 
 /**
@@ -826,13 +820,6 @@ export class Renumerate {
 					: "https://subs.renumerate.com";
 				return `${baseUrl}?session_id=${params.sessionId}`;
 			}
-
-			case "event":
-				return isLocal
-					? "https://localhost:4321/event/"
-					: "https://api.renumerate.com/v1/events/";
-			default:
-				throw new Error(`Unknown type: ${params}`);
 		}
 	}
 }
